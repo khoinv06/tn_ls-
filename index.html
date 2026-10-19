@@ -7,1488 +7,392 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <style>
-            /* Di chuột vào hiện màu xanh biển nhẹ */
             .answer-btn:not(:disabled):hover {
                 border-color: #93c5fd !important;
                 background-color: #eff6ff !important;
             }
-            /* Đáp án đúng hiện màu xanh lá */
             .answer-btn.correct-highlight {
                 border-color: #22c55e !important;
                 background-color: #f0fdf4 !important;
                 color: #15803d !important;
                 font-weight: 600 !important;
             }
-            /* Câu chọn sai hiện màu đỏ */
             .answer-btn.user-wrong {
                 border-color: #ef4444 !important;
                 background-color: #fef2f2 !important;
                 color: #b91c1c !important;
                 font-weight: 600 !important;
             }
-            /* Các câu còn lại mờ đi */
             .answer-btn.other-options {
                 border-color: #e2e8f0 !important;
                 background-color: #f8fafc !important;
                 color: #94a3b8 !important;
             }
+            /* 1. Màn hình / Câu hỏi lướt sang trái biến mất */
+            .slide-out-left {
+                opacity: 0 !important;
+                transform: translateX(-35px) !important;
+                transition: all 0.18s cubic-bezier(0.4, 0, 1, 1) !important;
+            }
+
+            /* 2. Màn hình / Câu hỏi mới đi từ bên phải lướt vào sang trái */
+            .slide-in-right {
+                animation: slideInRight 0.25s cubic-bezier(0, 0, 0.2, 1) forwards;
+            }
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(35px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            /* 3. Đi ngược lại từ trái sang phải (dành cho nút Quay lại) */
+            .slide-out-right {
+                opacity: 0 !important;
+                transform: translateX(35px) !important;
+                transition: all 0.18s cubic-bezier(0.4, 0, 1, 1) !important;
+            }
+            .slide-in-left {
+                animation: slideInLeft 0.25s cubic-bezier(0, 0, 0.2, 1) forwards;
+            }
+            @keyframes slideInLeft {
+                from {
+                    opacity: 0;
+                    transform: translateX(-35px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
         </style>
     </head>
-    <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4 font-sans text-slate-800">
-        <!-- Thẻ giao diện chính giống ảnh mẫu -->
+    <body class="bg-[#f0f4f9] flex items-center justify-center min-h-screen p-4 font-sans text-slate-800">
         <main
-            class="w-full max-w-2xl bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-10 transition-all"
+            class="w-full max-w-3xl bg-white rounded-2xl shadow-sm border border-slate-100 p-8 sm:p-12 transition-all"
         >
-            <!-- Thanh điều khiển trên cùng -->
-            <header class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
-                <div class="flex items-center gap-2">
-                    <h1 class="text-base sm:text-lg font-bold text-slate-800" id="quizTitle">
-                        Trắc nghiệm Lịch sử Đảng
-                    </h1>
-                    <button
-                        onclick="toggleConfigModal()"
-                        title="Nhấn để chọn số câu hoặc xáo trộn đề"
-                        class="relative text-xs font-bold px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white rounded-xl shadow-sm transition-all duration-200 flex items-center gap-1.5 group cursor-pointer"
-                    >
-                        <!-- Dấu chấm thông báo màu đỏ nhấp nháy để kéo ánh nhìn -->
-                        <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                            <span
-                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
-                            ></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                        </span>
-
-                        <i class="fa-solid fa-sliders text-blue-500 group-hover:text-white transition"></i>
-                        <span>Tùy chỉnh đề thi</span>
-                    </button>
-                </div>
-
-                <button
-                    onclick="resetAndRestart()"
-                    title="Làm lại từ đầu"
-                    class="text-slate-400 hover:text-slate-600 transition text-sm p-1"
+            <!-- 1. MÀN HÌNH KHỞI ĐẦU: HIỆN SẴN MỤC TÙY CHỈNH RA NGOÀI -->
+            <section id="startScreen" class="text-center flex flex-col items-center">
+                <!-- Icon cuốn sách xanh -->
+                <div
+                    class="w-14 h-14 bg-[#3b82f6] text-white rounded-xl flex items-center justify-center mb-5 text-2xl shadow-sm"
                 >
-                    <i class="fa-solid fa-rotate-right"></i>
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+
+                <h1 class="text-xl sm:text-2xl font-bold text-[#1e293b] mb-1.5">Trắc nghiệm Lịch sử Đảng</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mb-6" id="introSubText">
+                    Ôn tập kiến thức theo bộ 150 câu hỏi
+                </p>
+
+                <!-- 3 Cột thông số -->
+                <div class="grid grid-cols-3 divide-x divide-slate-100 w-full mb-6 py-2 border-y border-slate-100">
+                    <div class="flex flex-col items-center">
+                        <span class="text-base sm:text-lg font-bold text-[#1e293b]" id="badgeTotalQuestions">150</span>
+                        <span class="text-[11px] text-slate-400 mt-0.5">câu hỏi</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-base sm:text-lg font-bold text-[#1e293b]">4</span>
+                        <span class="text-[11px] text-slate-400 mt-0.5">lựa chọn / câu</span>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <i class="fa-regular fa-clock text-slate-400 text-sm mb-0.5"></i>
+                        <span class="text-[11px] text-slate-400">Làm bài theo tiến độ</span>
+                    </div>
+                </div>
+
+                <!-- Khung tùy chỉnh đề thi: Hiển thị trực tiếp các mục chọn -->
+                <div class="w-full bg-[#f8fafc] border border-slate-200/80 rounded-2xl p-5 mb-6 text-left">
+                    <div class="flex items-center gap-2 mb-3 text-slate-700 font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-solid fa-sliders text-blue-600"></i>
+                        <span>Tùy chỉnh đề thi</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Từ câu:</label>
+                            <input
+                                type="number"
+                                id="inputFrom"
+                                value="1"
+                                min="1"
+                                max="150"
+                                onchange="updateSelectedCount()"
+                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm font-semibold outline-none focus:border-blue-500 transition"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Đến câu:</label>
+                            <input
+                                type="number"
+                                id="inputTo"
+                                value="150"
+                                min="1"
+                                max="150"
+                                onchange="updateSelectedCount()"
+                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm font-semibold outline-none focus:border-blue-500 transition"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-200 text-xs sm:text-sm text-slate-600">
+                        <label class="flex items-center gap-2.5 cursor-pointer hover:text-slate-900 transition">
+                            <input
+                                type="checkbox"
+                                id="checkShuffleQ"
+                                class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
+                            />
+                            <span>Xáo trộn thứ tự các câu hỏi</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer hover:text-slate-900 transition">
+                            <input
+                                type="checkbox"
+                                id="checkShuffleA"
+                                class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
+                            />
+                            <span>Xáo trộn vị trí đáp án (A, B, C, D)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Nút bắt đầu làm bài -->
+                <button
+                    onclick="handleStartQuiz()"
+                    class="w-full max-w-sm py-3 px-6 rounded-xl font-medium text-sm bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-sm transition-all flex items-center justify-center gap-2 mb-5 cursor-pointer"
+                >
+                    <span>Bắt đầu làm bài</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
-            </header>
 
-            <!-- Thanh tiến trình và bộ đếm đúng / sai -->
-            <section class="flex items-center gap-3 mb-6">
-                <div class="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div
-                        id="progressBar"
-                        class="bg-slate-800 h-full rounded-full transition-all duration-300"
-                        style="width: 0%"
-                    ></div>
-                </div>
-                <div class="text-xs font-semibold text-slate-400 whitespace-nowrap" id="progressText">1 / 150</div>
-
-                <!-- Thống kê đúng sai dạng thẻ nhỏ -->
-                <div class="flex items-center gap-1.5 ml-2 text-xs font-bold">
-                    <span class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-500 border border-rose-100" id="wrongBadge"
-                        >✕ 0</span
-                    >
-                    <span
-                        class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100"
-                        id="correctBadge"
-                        >✓ 0</span
-                    >
-                </div>
+                <p class="text-[11px] text-slate-400">Bạn có thể làm lại bài thi bất cứ lúc nào.</p>
             </section>
 
-            <!-- Khu vực hiển thị câu hỏi -->
-            <article id="questionSection">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2" id="questionIndexLabel">
-                    CÂU HỎI 1
-                </p>
-                <h2 class="text-base sm:text-lg font-bold text-slate-800 leading-snug mb-6" id="questionContent">
-                    Đang chuẩn bị dữ liệu câu hỏi...
-                </h2>
+            <!-- 2. MÀN HÌNH LÀM BÀI (MẶC ĐỊNH ẨN) -->
+            <section id="quizScreen" class="hidden">
+                <header class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                    <button
+                        onclick="backToStartScreen()"
+                        title="Thoát ra màn hình bắt đầu để chỉnh lại"
+                        class="text-xs font-semibold px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                        <i class="fa-solid fa-right-from-bracket fa-flip-horizontal"></i>
+                        <span>Thoát</span>
+                    </button>
+                    <h2 class="text-base sm:text-lg font-bold text-slate-800" id="quizTitle">
+                        Trắc nghiệm Lịch sử Đảng
+                    </h2>
+                </header>
 
-                <!-- Danh sách lựa chọn A, B, C, D -->
-                <div class="flex flex-col gap-3 mb-8" id="answersContainer">
-                    <!-- Phương án được render tự động -->
+                <!-- Thanh tiến trình & chỉ số đúng/sai -->
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div
+                            id="progressBar"
+                            class="bg-slate-800 h-full rounded-full transition-all duration-300"
+                            style="width: 0%"
+                        ></div>
+                    </div>
+                    <div class="text-xs font-semibold text-slate-400 whitespace-nowrap" id="progressText">1 / 150</div>
+
+                    <div class="flex items-center gap-1.5 ml-2 text-xs font-bold">
+                        <span
+                            class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-500 border border-rose-100"
+                            id="wrongBadge"
+                            >✕ 0</span
+                        >
+                        <span
+                            class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100"
+                            id="correctBadge"
+                            >✓ 0</span
+                        >
+                    </div>
                 </div>
-            </article>
 
-            <!-- Nút điều hướng chân thẻ -->
-            <footer class="flex items-center justify-between pt-2">
-                <button
-                    id="prevBtn"
-                    onclick="prevQuestion()"
-                    class="px-5 py-2.5 rounded-xl font-semibold text-sm text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition disabled:opacity-40 disabled:hover:bg-transparent"
-                >
-                    Quay lại
-                </button>
+                <!-- Nội dung câu hỏi -->
+                <article id="questionSection">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2" id="questionIndexLabel">
+                        CÂU HỎI 1
+                    </p>
+                    <h3
+                        class="text-base sm:text-lg font-bold text-slate-800 leading-snug mb-6"
+                        id="questionContent"
+                    ></h3>
 
-                <button
-                    id="nextBtn"
-                    onclick="nextQuestion()"
-                    class="px-6 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-200 transition"
-                >
-                    Tiếp tục
-                </button>
-            </footer>
+                    <!-- Danh sách đáp án -->
+                    <div class="flex flex-col gap-3 mb-8" id="answersContainer"></div>
+                </article>
+
+                <!-- Chân thẻ điều hướng -->
+                <footer class="flex items-center justify-between pt-2">
+                    <button
+                        id="prevBtn"
+                        onclick="prevQuestion()"
+                        class="px-5 py-2.5 rounded-xl font-semibold text-sm text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition disabled:opacity-40 disabled:hover:bg-transparent"
+                    >
+                        Quay lại
+                    </button>
+
+                    <button
+                        id="nextBtn"
+                        onclick="nextQuestion()"
+                        class="px-6 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-200 transition cursor-pointer"
+                    >
+                        Tiếp tục
+                    </button>
+                </footer>
+            </section>
+
+            <!-- 3. MÀN HÌNH KẾT QUẢ BÀI LÀM -->
+            <section id="resultScreen" class="hidden">
+                <!-- THANH KẾT QUẢ GỌN GÀNG (CỠ CHỮ TO, DỄ NHÌN) -->
+                <div class="border border-slate-200 rounded-2xl p-5 mb-6 bg-white shadow-xs">
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <!-- Icon & Tiêu đề chữ to -->
+                        <div class="flex items-center gap-3.5">
+                            <div
+                                class="w-11 h-11 rounded-full bg-amber-50 text-amber-500 border border-amber-200 flex items-center justify-center shrink-0 text-base shadow-xs"
+                            >
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                                    Kết quả bài làm
+                                </h2>
+                                <p class="text-sm text-slate-500 mt-0.5 font-medium">Trắc nghiệm Lịch sử Đảng</p>
+                            </div>
+                        </div>
+
+                        <!-- Các chỉ số thống kê cỡ chữ lớn -->
+                        <div class="flex items-center gap-4 sm:gap-6 text-sm sm:text-base text-slate-600">
+                            <div>
+                                Tổng:
+                                <span id="resTotal" class="font-extrabold text-slate-900 text-base sm:text-lg">0</span>
+                            </div>
+                            <div class="w-px h-4 bg-slate-200"></div>
+                            <div>
+                                Đúng:
+                                <span id="resCorrect" class="font-extrabold text-emerald-600 text-base sm:text-lg"
+                                    >0</span
+                                >
+                            </div>
+                            <div class="w-px h-4 bg-slate-200"></div>
+                            <div>
+                                Sai:
+                                <span id="resWrong" class="font-extrabold text-rose-500 text-base sm:text-lg">0</span>
+                            </div>
+                            <div class="w-px h-4 bg-slate-200"></div>
+                            <div>
+                                Tỷ lệ:
+                                <span id="resPercentText" class="font-extrabold text-blue-600 text-base sm:text-lg"
+                                    >0%</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thanh tiến trình dày hơn -->
+                    <div class="w-full bg-slate-100 rounded-full h-2 mt-4 overflow-hidden">
+                        <div
+                            id="resProgressBar"
+                            class="bg-blue-600 h-full rounded-full transition-all duration-300"
+                            style="width: 0%"
+                        ></div>
+                    </div>
+                </div>
+
+                <!-- Tiêu đề danh sách xem lại câu hỏi -->
+                <div class="mb-6">
+                    <h3 class="text-sm sm:text-base font-bold text-slate-800 mb-3">Xem lại bài làm</h3>
+                    <div id="resQuestionList" class="space-y-3 max-h-80 overflow-y-auto pr-1"></div>
+                </div>
+
+                <!-- Danh sách xem lại các câu đã làm -->
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold text-slate-700 mb-2">Xem lại bài làm</h3>
+                    <div id="resQuestionList" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                        <!-- JS tự động render từng câu vào đây -->
+                    </div>
+                </div>
+
+                <!-- Các nút bấm điều hướng -->
+                <!-- Các nút bấm điều hướng (chữ to, dễ bấm) -->
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-slate-100">
+                    <button
+                        type="button"
+                        onclick="handleRetryAll()"
+                        class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-2 transition cursor-pointer shadow-xs"
+                    >
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Làm lại bài</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btnRetryWrong"
+                        onclick="handleRetryWrong()"
+                        class="px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-sm font-semibold flex items-center gap-2 transition cursor-pointer"
+                    >
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Làm những câu sai</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="backToHomeFromResult()"
+                        class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold flex items-center gap-2 transition cursor-pointer"
+                    >
+                        <i class="fa-solid fa-house"></i>
+                        <span>Về trang chủ</span>
+                    </button>
+                </div>
+            </section>
         </main>
 
-        <!-- Hộp thoại cài đặt dải câu & xáo trộn -->
-        <dialog
-            id="configModal"
-            class="rounded-2xl p-6 bg-white shadow-xl border border-slate-200 max-w-sm w-full backdrop:bg-black/30"
-        >
-            <h3 class="font-bold text-base text-slate-800 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-sliders text-blue-600"></i> Cấu hình luyện tập
-            </h3>
-            <form method="dialog" class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">Từ câu:</label>
-                        <input
-                            type="number"
-                            id="inputFrom"
-                            value="1"
-                            min="1"
-                            max="150"
-                            class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">Đến câu:</label>
-                        <input
-                            type="number"
-                            id="inputTo"
-                            value="150"
-                            min="1"
-                            max="150"
-                            class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-blue-500"
-                        />
-                    </div>
-                </div>
-
-                <div class="space-y-2 pt-2 border-t border-slate-100 text-sm">
-                    <label class="flex items-center gap-2 text-slate-700 cursor-pointer">
-                        <input type="checkbox" id="checkShuffleQ" class="rounded text-blue-600 focus:ring-blue-500" />
-                        <span>Xáo trộn thứ tự các câu</span>
-                    </label>
-                    <label class="flex items-center gap-2 text-slate-700 cursor-pointer">
-                        <input type="checkbox" id="checkShuffleA" class="rounded text-blue-600 focus:ring-blue-500" />
-                        <span>Xáo trộn vị trí đáp án (A, B, C, D)</span>
-                    </label>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-4">
-                    <button
-                        type="button"
-                        onclick="closeConfigModal()"
-                        class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg"
-                    >
-                        Đóng
-                    </button>
-                    <button
-                        type="button"
-                        onclick="applySettings()"
-                        class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm"
-                    >
-                        Áp dụng
-                    </button>
-                </div>
-            </form>
-        </dialog>
+        <script src="questions.js"></script>
 
         <script>
-            // Ngân hàng 150 câu hỏi tóm tắt & chuẩn hóa từ nội dung tài liệu
-            const fullQuestions = [
-                {
-                    id: 1,
-                    q: "Thời gian thực dân Pháp tiến hành khai thác thuộc địa lần thứ nhất ở Việt Nam khi nào?",
-                    a: ["1858-1884", "1884-1896", "1897-1914", "1914-1918"],
-                    c: 2,
-                },
-                {
-                    id: 2,
-                    q: "Trong đợt khai thác thuộc địa lần thứ nhất của thực dân Pháp ở nước ta có giai cấp mới nào được hình thành?",
-                    a: [
-                        "Giai cấp tư sản",
-                        "Giai cấp tư sản và công nhân",
-                        "Giai cấp công nhân",
-                        "Giai cấp tiểu tư sản",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 3,
-                    q: "Trước Chiến tranh thế giới thứ nhất, ở Việt Nam có những giai cấp nào?",
-                    a: [
-                        "Địa chủ phong kiến và nông dân",
-                        "Địa chủ phong kiến, nông dân, tư sản, tiểu tư sản và công nhân",
-                        "Địa chủ phong kiến, nông dân và công nhân",
-                        "Địa chủ phong kiến, nông dân và tiểu tư sản",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 4,
-                    q: "Dưới chế độ thực dân phong kiến, giai cấp nông dân Việt Nam có yêu cầu bức thiết nhất là gì?",
-                    a: ["Độc lập dân tộc", "Ruộng đất", "Quyền bình đẳng nam, nữ", "Được giảm tô, giảm tức"],
-                    c: 1,
-                },
-                {
-                    id: 5,
-                    q: "Mâu thuẫn cơ bản và chủ yếu ở Việt Nam đầu thế kỷ XX là mâu thuẫn nào?",
-                    a: [
-                        "Mâu thuẫn giữa giai cấp nông dân với giai cấp địa chủ phong kiến",
-                        "Mâu thuẫn giữa giai cấp công nhân với giai cấp tư sản",
-                        "Mâu thuẫn giữa công nhân và nông dân với đế quốc và phong kiến",
-                        "Mâu thuẫn giữa dân tộc Việt Nam với đế quốc xâm lược và tay sai của chúng",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 6,
-                    q: "Đặc điểm ra đời của giai cấp công nhân Việt Nam như thế nào?",
-                    a: [
-                        "Ra đời trước giai cấp tư sản, trong cuộc khai thác thuộc địa lần thứ nhất của thực dân Pháp.",
-                        "Phần lớn xuất thân từ nông dân.",
-                        "Chịu sự áp bức và bóc lột của đế quốc, phong kiến và tư sản",
-                        "Cả a, b và c",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 7,
-                    q: "Những giai cấp bị trị ở Việt Nam dưới chế độ thuộc địa của đế quốc Pháp là:",
-                    a: [
-                        "Công nhân và nông dân",
-                        "Công nhân, nông dân, tiểu tư sản",
-                        "Công nhân, nông dân, tiểu tư sản, tư sản dân tộc",
-                        "Công nhân, nông dân, tiểu tư sản, tư sản dân tộc, địa chủ vừa và nhỏ",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 8,
-                    q: "Khi nào phong trào công nhân Việt Nam hoàn toàn trở thành một phong trào tự giác?",
-                    a: [
-                        "Năm 1920 (tổ chức công hội ở Sài Gòn được thành lập)",
-                        "Năm 1925 (cuộc bãi công Ba Son)",
-                        "Năm 1929 (sự ra đời ba tổ chức cộng sản)",
-                        "Năm 1930 (Đảng Cộng sản Việt Nam ra đời)",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 9,
-                    q: "Nguyễn ái Quốc lựa chọn con đường giải phóng dân tộc theo khuynh hướng chính trị vô sản vào thời gian nào?",
-                    a: ["1917", "1918", "1919", "1920"],
-                    c: 3,
-                },
-                {
-                    id: 10,
-                    q: "Báo Đời sống công nhân là của tổ chức nào?",
-                    a: [
-                        "Đảng Xã hội Pháp",
-                        "Đảng Cộng sản Pháp",
-                        "Tổng Liên đoàn Lao động Pháp",
-                        "Hội Liên hiệp thuộc địa",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 11,
-                    q: "Hội Liên hiệp thuộc địa được thành lập vào năm nào?",
-                    a: ["1920", "1921", "1923", "1924"],
-                    c: 1,
-                },
-                {
-                    id: 12,
-                    q: "Nguyễn ái Quốc đã đọc Sơ thảo lần thứ nhất Luận cương về vấn đề dân tộc và vấn đề thuộc địa khi nào? ở đâu?",
-                    a: [
-                        "7/ 1920 - Liên Xô",
-                        "7/ 1920 - Pháp",
-                        "7/1920 - Quảng Châu (Trung Quốc)",
-                        "8/1920 - Trung Quốc",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 13,
-                    q: 'Sự kiện nào được Nguyễn ái Quốc đánh giá "như chim én nhỏ báo hiệu mùa Xuân"?',
-                    a: [
-                        "Cách mạng tháng Mười Nga bùng nổ và thắng lợi",
-                        "Sự thành lập Đảng Cộng sản Pháp",
-                        "Vụ mưu sát tên toàn quyền Mêclanh của Phạm Hồng Thái",
-                        "Tiếng bom Sa Diện của Phạm Hồng Thái",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 14,
-                    q: "Hội Việt Nam Cách mạng Thanh niên được thành lập vào thời gian nào? Ở đâu?",
-                    a: [
-                        "6-1925 ở Quảng Châu (Trung Quốc)",
-                        "5-1925 ở Quảng Châu (Trung Quốc)",
-                        "6-1925 ở Hương Cảng (Trung Quốc)",
-                        "5-1925 ở Ma Cao (Trung Quốc)",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 15,
-                    q: "Cơ quan ngôn luận của Hội Việt Nam Cách mạng Thanh niên là tờ báo nào?",
-                    a: ["Báo Thanh niên", "Báo Người cùng khổ", "Báo Đời sống công nhân", "Báo Tiếng dân"],
-                    c: 0,
-                },
-                {
-                    id: 16,
-                    q: 'Hội Việt Nam Cách mạng Thanh niên thực hiện chủ trương "vô sản hoá" khi nào?',
-                    a: [
-                        "Cuối năm 1926 đầu năm 1927",
-                        "Cuối năm 1927 đầu năm 1928",
-                        "Cuối năm 1928 đầu năm 1929",
-                        "Cuối năm 1929 đầu năm 1930",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 17,
-                    q: "Tên chính thức của tổ chức này được đặt tại Đại hội lần thứ nhất ở Quảng Châu (tháng 5-1929) là gì?",
-                    a: [
-                        "Việt Nam Thanh niên cách mạng đồng chí Hội",
-                        "Hội Việt Nam cách mạng đồng minh",
-                        "Hội Việt Nam độc lập đồng minh",
-                        "Hội Việt Nam Cách mạng Thanh niên",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 18,
-                    q: "Việt Nam Quốc dân Đảng được thành lập vào thời gian nào?",
-                    a: ["12/1927", "11/1926", "8/1925", "7/1925"],
-                    c: 0,
-                },
-                {
-                    id: 19,
-                    q: "Ai là người đã tham gia sáng lập Việt Nam Quốc dân Đảng 1927 ?",
-                    a: ["Tôn Quang Phiệt", "Trần Huy Liệu", "Phạm Tuấn Tài", "Nguyễn Thái Học"],
-                    c: 3,
-                },
-                {
-                    id: 20,
-                    q: "Khởi nghĩa Yên Bái nổ ra vào thời gian nào?",
-                    a: ["9-2-1930", "9-3-1930", "3-2-1930", "9-3-1931"],
-                    c: 0,
-                },
-                {
-                    id: 21,
-                    q: "Tổ chức cộng sản nào ra đời đầu tiên ở Việt Nam?",
-                    a: [
-                        "Hội Việt Nam cách mạng thanh niên",
-                        "Đông Dương cộng sản Đảng",
-                        "An Nam cộng sản Đảng",
-                        "Đông Dương cộng sản liên đoàn",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 22,
-                    q: "Chi bộ cộng sản đầu tiên ở Việt Nam được thành lập khi nào?",
-                    a: ["Cuối tháng 3/1929", "Đầu tháng 3/1929", "4/1929", "5/1929"],
-                    c: 0,
-                },
-                {
-                    id: 23,
-                    q: "Chi bộ cộng sản đầu tiên gồm mấy đảng viên? Ai làm bí thư chi bộ?",
-                    a: [
-                        "5 đảng viên - Bí thư Trịnh Đình Cửu",
-                        "6 đảng viên - Bí thư Ngô Gia Tự",
-                        "7 đảng viên - Bí thư Trịnh Đình Cửu",
-                        "7 đảng viên - Bí thư Trần Văn Cung",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 24,
-                    q: "Đông Dương Cộng sản Đảng và An nam Cộng sản Đảng được ra đời từ tổ chức tiền thân nào?",
-                    a: [
-                        "Tân Việt cách mạng Đảng",
-                        "Hội Việt Nam cách mạng Thanh niên",
-                        "Việt Nam cách mạng đồng chí Hội",
-                        "Cả a, b và c",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 25,
-                    q: "Đông Dương cộng sản liên đoàn hợp nhất vào Đảng Cộng sản Việt Nam khi nào?",
-                    a: ["22/2/1930", "24/2/1930", "24/2/1931", "20/2/1931"],
-                    c: 1,
-                },
-                {
-                    id: 26,
-                    q: "Tổ chức Đông Dương Cộng sản Đảng được thành lập vào thời gian nào?",
-                    a: ["6/1927", "6/1928", "6/1929", "5/1929"],
-                    c: 2,
-                },
-                {
-                    id: 27,
-                    q: "Tổ chức An Nam Cộng sản Đảng được thành lập vào thời gian nào?",
-                    a: ["6/1927", "6/1928", "8/1929", "7/1929"],
-                    c: 2,
-                },
-                {
-                    id: 28,
-                    q: "Tổ chức Đông Dương Cộng sản Liên Đoàn được thành lập vào thời gian nào?",
-                    a: ["7/1927", "1/1930", "2/1930", "3/1930"],
-                    c: 1,
-                },
-                {
-                    id: 29,
-                    q: "Thời gian ra bản Tuyên đạt nêu rõ việc thành lập Đông Dương Cộng sản Liên đoàn?",
-                    a: ["7-1929", "9-1929", "10-1929", "1-1930"],
-                    c: 1,
-                },
-                {
-                    id: 30,
-                    q: "Ban Thường vụ Trung ương Đảng ra Quyết nghị chấp nhận Đông Dương cộng sản liên đoàn là một bộ phận của Đảng Cộng sản Việt Nam vào thời gian nào?",
-                    a: ["22-2-1930", "20-2-1930", "24-2-1930", "22-3-1930"],
-                    c: 2,
-                },
-                {
-                    id: 31,
-                    q: "Do đâu Nguyễn ái Quốc đã triệu tập và chủ trì Hội nghị thành lập Đảng đầu năm 1930?",
-                    a: [
-                        "Được sự uỷ nhiệm của Quốc tế Cộng sản",
-                        "Nhận được chỉ thị của Quốc tế Cộng sản",
-                        "Sự chủ động của Nguyễn Ái Quốc",
-                        "Các tổ chức cộng sản trong nước đề nghị",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 32,
-                    q: "Đại biểu các tổ chức cộng sản nào đã tham dự Hội nghị thành lập Đảng đầu năm 1930?",
-                    a: [
-                        "Đông Dương cộng sản Đảng, An Nam cộng sản Đảng và Đông Dương cộng sản liên đoàn",
-                        "Đông Dương cộng sản Đảng và An Nam cộng sản Đảng",
-                        "An Nam cộng sản Đảng và Đông Dương cộng sản liên đoàn",
-                        "Đông Dương cộng sản Đảng và Đông Dương cộng sản liên đoàn",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 33,
-                    q: "Hội nghị thành lập Đảng Cộng sản Việt Nam đã thông qua mấy văn kiện?",
-                    a: ["3 văn kiện", "4 văn kiện", "5 văn kiện", "6 văn kiện"],
-                    c: 1,
-                },
-                {
-                    id: 34,
-                    q: "Hội nghị hợp nhất thành lập Đảng CSVN (3/2/1930) thông qua các văn kiện nào sau đây:",
-                    a: [
-                        "Chánh cương vắn tắt",
-                        "Sách lược vắn tắt",
-                        "Điều lệ vắn tắt và Chương trình vắn tắt",
-                        "Cả A, B và C",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 35,
-                    q: "Nội dung nào sau đây nằm trong Cương lĩnh đầu tiên của Đảng?",
-                    a: [
-                        "Đánh đổ đế quốc chủ nghĩa Pháp và bọn phong kiến, làm cho nước Nam hoàn toàn độc lập.",
-                        "Tư sản dân quyền cách mạng là thời kỳ dự bị để làm xã hội cách mạng.",
-                        "Chỉ có giải phóng giai cấp vô sản thì mới giải phóng được dân tộc.",
-                        "Đảng có vững cách mạng mới thành công",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 36,
-                    q: "Cương lĩnh đầu tiên của Đảng đã xác định mục tiêu chiến lược của cách mạng Việt Nam là gì?",
-                    a: [
-                        "Làm tư sản dân quyền cách mạng và thổ địa cách mạng để đi tới xã hội cộng sản.",
-                        "Xây dựng một nước Việt Nam dân giàu nước mạnh xã hội công bằng, dân chủ và văn minh.",
-                        "Cách mạng tư sản dân quyền - phản đế và điền địa - lập chính quyền của công nông bằng hình thức Xô viết, để dự bị điều kiện đi tới cách mạng xã hội chủ nghĩa.",
-                        "Cả a và b.",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 37,
-                    q: "Sau Hội nghị thành lập Đảng, Ban chấp hành Trung ương lâm thời của Đảng được thành lập do ai đứng đầu?",
-                    a: ["Hà Huy Tập", "Trần Phú", "Lê Hồng Phong", "Trịnh Đình Cửu"],
-                    c: 3,
-                },
-                {
-                    id: 38,
-                    q: "Vào thời điểm nào Nguyễn ái Quốc gửi Quốc tế Cộng sản bản Báo cáo về việc thành lập Đảng Cộng sản Việt Nam?",
-                    a: ["ngày 8-2-1930", "Ngày 10-2-1920", "Ngày 18-2-1930", "Ngày 28-2-1930"],
-                    c: 2,
-                },
-                {
-                    id: 39,
-                    q: "Văn kiện nào của Đảng đặt nhiệm vụ chống đế quốc lên hàng đầu?",
-                    a: [
-                        "Chính cương vắn tắt, Sách lược vắn tắt do Hội nghị thành lập Đảng thông qua",
-                        "Luận cương chính trị tháng 10-1930 (Dự án cương lĩnh để thảo luận trong Đảng)",
-                        "Thư của Trung ương gửi cho các cấp đảng bộ (12-1930)",
-                        "Nghị quyết Đại hội lần thứ nhất của Đảng (3-1935)",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 40,
-                    q: "Trong các điểm sau, chỉ rõ điểm khác nhau giữa Cương lĩnh chính trị đầu tiên của Đảng và Luận cương chính trị tháng 10-1930 là:",
-                    a: [
-                        "Phương hướng chiến lược của cách mạng.",
-                        "Chủ trương tập hợp lực lượng cách mạng.",
-                        "Vai trò lãnh đạo cách mạng.",
-                        "Phương pháp cách mạng.",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 41,
-                    q: 'Văn kiện nào của Đảng nhấn mạnh "vấn đề thổ địa là cái cốt của cách mạng tư sản dân quyền"?',
-                    a: [
-                        "Chính cương vắn tắt, Sách lược vắn tắt.",
-                        "Chỉ thị thành lập Hội phản đế đồng minh (18-11-1930).",
-                        "Luận cương chính trị tháng 10-1930.",
-                        "Chung quanh vấn đề chiến sách mới của Đảng (10-1936).",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 42,
-                    q: "Lần đầu tiên nhân dân Việt Nam kỷ niệm ngày Quốc tế lao động vào năm nào?",
-                    a: ["1930", "1931", "1936", "1938"],
-                    c: 0,
-                },
-                {
-                    id: 43,
-                    q: "Cao trào cách mạng Việt Nam năm 1930 bắt đầu bị đế quốc Pháp đàn áp khốc liệt từ khi nào?",
-                    a: ["Đầu năm 1930", "Cuối năm 1930", "Đầu năm 1931", "Cuối năm 1931"],
-                    c: 1,
-                },
-                {
-                    id: 44,
-                    q: "Tên của lực lượng vũ trang được thành lập ở Nghệ Tĩnh trong cao trào cách mạng năm 1930 là gì?",
-                    a: ["Du kích", "Tự vệ", "Tự vệ đỏ", "Tự vệ chiến đấu"],
-                    c: 2,
-                },
-                {
-                    id: 45,
-                    q: "Chính quyền Xô viết ở một số vùng nông thôn Nghệ - Tĩnh được thành lập trong khoảng thời gian nào?",
-                    a: ["Đầu năm 1930", "Cuối năm 1930", "Đầu năm 1931", "Cuối năm 1931"],
-                    c: 1,
-                },
-                {
-                    id: 46,
-                    q: "Nguyên nhân chủ yếu và có ý nghĩa quyết định sự bùng nổ và phát triển của cao trào cách mạng Việt Nam năm 1930?",
-                    a: [
-                        "Tác động tiêu cực của cuộc khủng hoảng kinh tế 1929-1933",
-                        "Sự lãnh đạo của Đảng Cộng sản Việt Nam",
-                        "Chính sách khủng bố, đàn áp dã man của thực dân Pháp",
-                        "Sự phát triển của phong trào công nhân và nông dân",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 47,
-                    q: "Hội nghị lần thứ nhất Ban chấp hành Trung ương lâm thời Đảng Cộng sản Việt Nam (10-1930) đã cử ra Ban chấp hành Trung ương chính thức do ai làm Tổng Bí thư?",
-                    a: ["Hồ Chí Minh", "Trần Phú", "Lê Hồng Phong", "Nguyễn Văn Cừ"],
-                    c: 1,
-                },
-                {
-                    id: 48,
-                    q: "Hội nghị lần thứ nhất Ban chấp hành Trung ương 10/1930 do ai chủ trì?",
-                    a: ["Hồ Chí Minh", "Lê Duẩn", "Trường Chinh", "Trần Phú"],
-                    c: 3,
-                },
-                {
-                    id: 49,
-                    q: "Hội nghị Ban chấp hành TƯ tháng 10 năm 1930 đã cử ra bao nhiêu uỷ viên?",
-                    a: ["4 uỷ viên", "5 uỷ viên", "6 uỷ viên", "7 uỷ viên"],
-                    c: 2,
-                },
-                {
-                    id: 50,
-                    q: "Ai là Tổng Bí thư đầu tiên của Đảng?",
-                    a: ["Hồ Chí Minh", "Trần Văn Cung", "Trần Phú", "Lê Hồng Phong"],
-                    c: 2,
-                },
-                {
-                    id: 51,
-                    q: "Đại hội lần thứ VII Quốc tế Cộng sản họp ở Matxcơva vào thời gian nào?",
-                    a: [
-                        "25-7 đến ngày 20-8-1935",
-                        "25-7 đến ngày 25-8-1935",
-                        "20-7 đến ngày 20-8-1935",
-                        "10-7 đến ngày 20-7-1935",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 52,
-                    q: "Được sự chỉ đạo của Quốc tế Cộng sản, ban lãnh đạo của Đảng ở nước ngoài được thành lập vào năm nào?",
-                    a: ["Năm 1933", "Năm 1934", "Năm 1935", "1932"],
-                    c: 1,
-                },
-                {
-                    id: 53,
-                    q: "Được sự chỉ đạo của Quốc tế Cộng sản, ban lãnh đạo của Đảng ở nước ngoài do ai đứng đầu?",
-                    a: ["Hà Huy Tập", "Lê Hồng Phong", "Nguyễn Văn Cừ", "Trường Chinh"],
-                    c: 1,
-                },
-                {
-                    id: 54,
-                    q: "Hội nghị Ban chấp hành Trung ương Đảng họp tháng 7-1936 chủ trương thành lập mặt trận nào?",
-                    a: [
-                        "Mặt trận dân chủ Đông Dương",
-                        "Mặt trận nhân dân phản đế Đông Dương",
-                        "Mặt trận dân tộc thống nhất phản đế Đông Dương",
-                        "Mặt trận phản đế đồng minh Đông Dương",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 55,
-                    q: "Cho biết hình thức tổ chức và đấu tranh trong giai đoạn 1936-1939?",
-                    a: [
-                        "Công khai, hợp pháp",
-                        "Nửa công khai, nửa hợp pháp",
-                        "Bí mật, bất hợp pháp",
-                        "Tất cả các hình thức trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 56,
-                    q: "Điều kiện nào tạo ra khả năng đấu tranh công khai hợp pháp cho phong trào cách mạng Đông Dương giai đoạn 1936-1939?",
-                    a: [
-                        "Sự xuất hiện chủ nghĩa phát xít và nguy cơ chiến tranh thế giới",
-                        "Chủ trương chuyển hướng chiến lược cách mạng thế giới của Quốc tế Cộng sản",
-                        "Mặt trận nhân dân Pháp lên cầm quyền",
-                        "Tất cả các điều kiện trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 57,
-                    q: 'Ai là người viết tác phẩm "Tự chi trích"?',
-                    a: ["Nguyễn Văn Cừ", "Lê Hồng Phong", "Hà Huy Tập", "Phan Đăng Lưu"],
-                    c: 0,
-                },
-                {
-                    id: 58,
-                    q: "Chiến tranh thế giới II bùng nổ vào thời gian nào?",
-                    a: ["1937", "1938", "1939", "1940"],
-                    c: 2,
-                },
-                {
-                    id: 59,
-                    q: "Chủ trương điều chỉnh chiến lược cách mạng của Đảng được bắt đầu từ Hội nghị Trung ương nào?",
-                    a: [
-                        "Hội nghị Trung ương 6",
-                        "Hội nghị Trung ương 7",
-                        "Hội nghị Trung ương 8",
-                        "Hội nghị Trung ương 9",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 60,
-                    q: "Hội nghị Trung ương 6 (11-1939) họp tại đâu?",
-                    a: ["Tân Trào (Tuyên Quang)", "Bà Điểm (Gia Định)", "Đình Bảng (Bắc Ninh)", "Thái Nguyên"],
-                    c: 1,
-                },
-                {
-                    id: 61,
-                    q: "Quân đội phát xít Nhật vào xâm lược nước ta tháng, năm nào?",
-                    a: ["9- 1939", "9- 1940", "3- 1941", "2-1940"],
-                    c: 1,
-                },
-                {
-                    id: 62,
-                    q: "Cuộc khởi nghĩa Bắc Sơn nổ ra ngày nào?",
-                    a: ["22/9/1940", "27/9/1940", "23/11/1940", "20/11/1940"],
-                    c: 1,
-                },
-                {
-                    id: 63,
-                    q: "Ngày Nam Kỳ khởi nghĩa là ngày nào?",
-                    a: ["27-9-1940", "23-11-1940", "13-1-1941", "10-1-1941"],
-                    c: 1,
-                },
-                {
-                    id: 64,
-                    q: "Hội nghị Trung ương lần thứ 7 của Đảng họp tại Đình Bảng (Bắc Ninh) vào thời gian nào?",
-                    a: ["11-1939", "11-1940", "5-1941", "4-1941"],
-                    c: 1,
-                },
-                {
-                    id: 65,
-                    q: "Mặt trận Việt Nam độc lập đồng minh (Việt Minh) được thành lập năm nào?",
-                    a: ["1940", "1941", "1942", "1943"],
-                    c: 1,
-                },
-                {
-                    id: 66,
-                    q: "Bạn hãy cho biết tên gọi của các tổ chức quần chúng trong mặt trận Việt Minh?",
-                    a: ["Dân chủ", "Cứu quốc", "Phản đế", "Giải phóng"],
-                    c: 1,
-                },
-                {
-                    id: 67,
-                    q: "Mặt trận Việt Minh ra Tuyên ngôn về sự ra đời của Mặt trận vào thời gian nào?",
-                    a: ["Tháng 5-1941", "Tháng 6-1941", "Tháng 10-1941", "Tháng 11-1941"],
-                    c: 0,
-                },
-                {
-                    id: 68,
-                    q: "Hội nghị nào của Ban chấp hành Trung ương Đảng nhấn mạnh giải phóng dân tộc là nhiệm vụ bức thiết nhất?",
-                    a: [
-                        "Hội nghị họp tháng 10-1930",
-                        "Hội nghị họp tháng 11-1939",
-                        "Hội nghị họp tháng 11-1940",
-                        "Hội nghị họp tháng 5-1941",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 69,
-                    q: "Lần đầu tiên Ban chấp hành Trung ương Đảng chủ trương thành lập chính quyền nhà nước với hình thức cộng hoà dân chủ tại Hội nghị nào?",
-                    a: [
-                        "Hội nghị họp tháng 10-1930",
-                        "Hội nghị họp tháng 11-1939",
-                        "Hội nghị họp tháng 11-1940",
-                        "Hội nghị họp tháng 5-1941",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 70,
-                    q: "Ai chủ trì Hội nghị Ban Chấp hành Trung ương Đảng tháng 11/1940?",
-                    a: ["Nguyễn ái Quốc", "Nguyễn Văn Cừ", "Trường Chinh", "Lê Hồng Phong"],
-                    c: 2,
-                },
-                {
-                    id: 71,
-                    q: "Hội nghị Ban Chấp hành TƯ Đảng 5/1941 họp ở đâu? Do ai chủ trì?",
-                    a: [
-                        "Cao Bằng. Nguyễn ái Quốc",
-                        "Cao Bằng. Trường Chinh",
-                        "Bắc Cạn. Trường Chinh",
-                        "Tuyên Quang. Nguyễn ái Quốc",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 72,
-                    q: "Ban chấp hành Trung ương Đảng xác định chuẩn bị khởi nghĩa vũ trang là nhiệm vụ trung tâm tại Hội nghị nào?",
-                    a: [
-                        "Hội nghị họp tháng 10-1930",
-                        "Hội nghị họp tháng 11-1939",
-                        "Hội nghị họp tháng 11-1940",
-                        "Hội nghị họp tháng 5-1941",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 73,
-                    q: "Mặt trận dân tộc thống nhất phản đế Đông Dương được quyết định thành lập tại Hội nghị nào của Ban chấp hành Trung ương Đảng?",
-                    a: [
-                        "Hội nghị họp tháng 10-1930",
-                        "Hội nghị họp tháng 11-1939",
-                        "Hội nghị họp tháng 11-1940",
-                        "Hội nghị họp tháng 5-1941",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 74,
-                    q: "Ban chấp hành Trung ương Đảng chủ trương thành lập nước Việt Nam dân chủ cộng hoà tại Hội nghị nào?",
-                    a: [
-                        "Hội nghị họp tháng 10-1930",
-                        "Hội nghị họp tháng 11-1939",
-                        "Hội nghị họp tháng 11-1940",
-                        "Hội nghị họp tháng 5-1941",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 75,
-                    q: "Ban chấp hành Trung ương Đảng chủ trương giải quyết vấn đề dân tộc trong khuôn khổ từng nước ở Đông Dương vào thời gian nào?",
-                    a: ["Tháng 10-1930", "Tháng 11-1939", "Tháng 11-1940", "Tháng 5-1941"],
-                    c: 3,
-                },
-                {
-                    id: 76,
-                    q: "Hội nghị lần thứ Tám của Ban chấp hành Trung ương Đảng (5-1941) cử ai làm Tổng bí thư?",
-                    a: ["Nguyễn ái Quốc", "Võ Văn Tần", "Trường Chinh", "Lê Duẩn"],
-                    c: 2,
-                },
-                {
-                    id: 77,
-                    q: "Một đội vũ trang nhỏ được thành lập ở Cao Bằng gồm 12 chiến sĩ được thành lập vào thời gian nào?",
-                    a: ["Đầu năm 1941", "Cuối năm 1941", "Đầu năm 1944", "Cuối năm 1944"],
-                    c: 3,
-                },
-                {
-                    id: 78,
-                    q: 'Tổng bộ Việt Minh ra chỉ thị "Sửa soạn khởi nghĩa" vào thời gian nào?',
-                    a: ["5-1944", "3-1945", "8-1945", "6-1945"],
-                    c: 1,
-                },
-                {
-                    id: 79,
-                    q: "Việt Nam Tuyên truyền giải phóng quân được thành lập khi nào?",
-                    a: ["22-12-1944", "19-12-1946", "15-5-1945", "10-5-1945"],
-                    c: 0,
-                },
-                {
-                    id: 80,
-                    q: "Đội Việt Nam tuyên truyền giải phóng quân lúc đầu được thành lập có bao nhiêu chiến sĩ?",
-                    a: ["33", "34", "35", "36"],
-                    c: 1,
-                },
-                {
-                    id: 81,
-                    q: "Việt Nam Giải phóng quân được thành lập vào thời gian nào?",
-                    a: ["tháng 9-1940", "tháng 12-1941", "tháng 12-1944", "tháng 5-1945"],
-                    c: 3,
-                },
-                {
-                    id: 82,
-                    q: "Tài liệu nào sau đây được đánh giá như một văn kiện mang tính chất cương lĩnh quân sự đầu tiên của Đảng?",
-                    a: [
-                        "Đường cách mạng",
-                        "Cách đánh du kích",
-                        "Con đường giải phóng",
-                        "Chỉ thị thành lập đội Việt Nam tuyên truyền giải phóng quân",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 83,
-                    q: 'Chỉ thị "Nhật - Pháp bắn nhau và hành động của chúng ta" ra đời khi nào?',
-                    a: ["9/3/1945", "12/3/1945", "10/3/1846", "12/3/1946"],
-                    c: 1,
-                },
-                {
-                    id: 84,
-                    q: "Bản Chỉ thị Nhật, Pháp bắn nhau và hành động của chúng ta phản ánh nội dung của Hội nghị nào?",
-                    a: [
-                        "Hội nghị Ban chấp hành Trung ương Đảng họp tháng 5-1941",
-                        "Hội nghị Ban Thường vụ Trung ương Đảng họp tháng 2-1943",
-                        "Hội nghị Ban Thường vụ Trung ương Đảng họp tháng 3-1945",
-                        "Hội nghị quân sự cách mạng Bắc kỳ họp tháng 4-1945",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 85,
-                    q: "Hội văn hoá cứu quốc được thành lập vào thời gian nào?",
-                    a: ["năm 1941", "năm 1943", "năm 1944", "năm 1945"],
-                    c: 2,
-                },
-                {
-                    id: 86,
-                    q: "Trong cao trào vận động cứu nước 1939-1945, chiến khu cách mạng được xây dựng ở vùng Chí Linh - Đông Triều có tên là gì?",
-                    a: ["Trần Hưng Đạo", "Hoàng Hoa Thám", "Lê Lợi", "Quang Trung"],
-                    c: 0,
-                },
-                {
-                    id: 87,
-                    q: "Chiến khu Hoà - Ninh - Thanh còn có tên là gì?",
-                    a: ["Trần Hưng Đạo", "Hoàng Hoa Thám", "Lê Lợi", "Quang Trung"],
-                    c: 3,
-                },
-                {
-                    id: 88,
-                    q: "Chiến khu cách mạng nào được gọi là Đệ tứ chiến khu?",
-                    a: ["Trần Hưng Đạo", "Hoàng Hoa Thám", "Lê Lợi", "Quang Trung"],
-                    c: 0,
-                },
-                {
-                    id: 89,
-                    q: "Hội nghị quân sự cách mạng Bắc Kỳ chủ trương thành lập chiến khu cách mạng nào ở Nam Kỳ?",
-                    a: ["Trung Trắc", "Phan Đình Phùng", "Nguyễn Tri Phương", "Hoàng Hoa Thám"],
-                    c: 1,
-                },
-                {
-                    id: 90,
-                    q: "Khẩu hiệu nào sau được nêu ra trong Cao trào kháng Nhật cứu nước?",
-                    a: [
-                        "Đánh đuổi phát xít Nhật- Pháp",
-                        "Đánh đuổi phát xít Nhật",
-                        "Giải quyết nạn đói",
-                        "Chống nhổ lúa trồng đay",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 91,
-                    q: "Cao trào kháng Nhật cứu nước đã diễn ra ở vùng rừng núi và trung du Bắc kỳ với hình thức nào là chủ yếu?",
-                    a: [
-                        "Khởi nghĩa từng phần",
-                        "Vũ trang tuyên truyền",
-                        "Chiến tranh du kích cục bộ",
-                        "Đấu tranh báo chí",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 92,
-                    q: 'Trong cao trào kháng Nhật cứu nước, phong trào "Phá kho thóc của Nhật để giải quyết nạn đói" đã diễn ra mạnh mẽ ở đâu?',
-                    a: [
-                        "Đồng bằng Nam Bộ",
-                        "Đồng bằng Bắc Bộ và Bắc Trung Bộ",
-                        "Đồng bằng Bắc Bộ",
-                        "Đồng bằng Trung Bộ",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 93,
-                    q: "Hình thức hoạt động chủ yếu ở các đô thị trong cao trào kháng Nhật cứu nước là gì?",
-                    a: [
-                        "Vũ trang tuyên truyền",
-                        "Diệt tác trung gian",
-                        "Vũ trang tuyên truyền và diệt tác trung gian",
-                        "Đấu tranh báo chí và đấu tranh nghị trường",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 94,
-                    q: "Hội nghị quân sự cách mạng Bắc kỳ họp vào thời gian nào?",
-                    a: ["Tháng 3-1945", "Tháng 4-1945", "Tháng 5-1945", "Tháng 6-1945"],
-                    c: 1,
-                },
-                {
-                    id: 95,
-                    q: "Hội nghị quân sự cách mạng Bắc kỳ do ai triệu tập?",
-                    a: [
-                        "Ban Thường vụ Trung ương Đảng",
-                        "Tổng bộ Việt Minh",
-                        "Ban chấp hành Trung ương Đảng",
-                        "Xứ uỷ Bắc Kỳ",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 96,
-                    q: "Tổ chức nào triệu tập Đại hội quốc dân họp tại Tân Trào?",
-                    a: [
-                        "Ban Thường vụ Trung ương Đảng",
-                        "Ban chấp hành Trung ương Đảng",
-                        "Tổng bộ Việt Minh",
-                        "Uỷ ban khởi nghĩa",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 97,
-                    q: "Hội nghị toàn quốc của Đảng Cộng sản Đông Dương họp ở Tân Trào trong thời gian nào?",
-                    a: ["15 - 19/8/1941", "13 - 15/8/1945", "15 - 19/8/1945", "13 - 15/8/1941"],
-                    c: 1,
-                },
-                {
-                    id: 98,
-                    q: "Uỷ ban dân tộc giải phóng do ai làm chủ tịch?",
-                    a: ["Hồ Chí Minh", "Trường Chinh", "Phạm Văn Đồng", "Võ Nguyên Giáp"],
-                    c: 0,
-                },
-                {
-                    id: 99,
-                    q: "Quốc dân Đại hội Tân trào họp tháng 8-1945 ở huyện nào?",
-                    a: [
-                        "Chiêm Hoá (Tuyên Quang)",
-                        "Định hoá (Thái nguyên)",
-                        "Sơn Dương (Tuyên Quang)",
-                        "Đại Từ (Thái Nguyên)",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 100,
-                    q: "Quốc dân Đại hội Tân trào tháng 8-1945 đã không quyết định những nội dung nào dưới đây:",
-                    a: [
-                        "Quyết định Tổng khởi nghĩa",
-                        "10 Chính sách của Việt Minh",
-                        "Quyết định thành lập Uỷ ban giải phóng ở Hà Nội",
-                        "Quyết định thành lập Uỷ ban giải phóng dân tộc, quy định Quốc kỳ, Quốc ca",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 101,
-                    q: "Hội nghị nào đã quyết định phát động toàn dân nổi dậy tổng khởi nghĩa giành chính quyền?",
-                    a: [
-                        "Hội nghị Ban chấp hành Trung ương Đảng",
-                        "Hội nghị Ban thường vụ Trung ương Đảng",
-                        "Hội nghị toàn quốc của Đảng",
-                        "Hội nghị Tổng bộ Việt Minh",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 102,
-                    q: "Nhân dân ta phải tiến hành tổng khởi nghĩa giành chính quyền trước khi quân Đồng minh vào Đông Dương vì:",
-                    a: [
-                        "đó là lúc so sánh lực lượng có lợi nhất đối với cách mạng",
-                        "đó là lúc kẻ thù cũ đã ngã gục nhưng kẻ thù mới chưa kịp đến",
-                        "quân Đồng minh có thể dựng ra một chính quyền trái với ý chí và nguyện vọng của nhân dân ta",
-                        "tất cả các lý do trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 103,
-                    q: "Tình hình đất nước ta sau cách mạng tháng Tám năm 1945 được ví như hình ảnh:",
-                    a: ["Nước sôi lửa nóng", "Nước sôi lửa bỏng", "Ngàn cân treo sợi tóc", "Trứng nước"],
-                    c: 2,
-                },
-                {
-                    id: 104,
-                    q: "Những khó khăn, thách thức đối với Việt Nam sau cách mạng tháng Tám - 1945:",
-                    a: [
-                        "Các thế lực đế quốc, phản động bao vây, chống phá",
-                        "Kinh tế kiệt quệ và nạn đói hoành hành",
-                        "Hơn 90% dân số không biết chữ",
-                        "Tất cả các phương án trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 105,
-                    q: "Những thuận lợi căn bản của đất nước sau cách mạng tháng Tám - 1945:",
-                    a: [
-                        "Cách mạng thế giới phát triển mạnh mẽ",
-                        "Hệ thống chính quyền cách mạng nhân dân được thiết lập",
-                        "Nhân dân có quyết tâm bảo vệ chế độ mới",
-                        "Tất cả các phương án trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 106,
-                    q: "Kẻ thù chính của cách mạng Việt Nam ngay sau Cách mạng 8- 1945?",
-                    a: [
-                        "Thực dân Pháp xâm lược",
-                        "Tưởng Giới Thạch và tay sai",
-                        "Thực dân Anh xâm lược",
-                        "Giặc đói và giặc dốt",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 107,
-                    q: "Sau ngày tuyên bố độc lập Chính phủ lâm thời đã xác định các nhiệm vụ cấp bách cần giải quyết:",
-                    a: [
-                        "Chống ngoại xâm",
-                        "Chống ngoại xâm và nội phản",
-                        "Diệt giặc đói, giặc dốt và giặc ngoại xâm",
-                        "Cả ba phương án trên",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 108,
-                    q: "Chỉ thị kháng chiến kiến quốc ra đời ngày, tháng, năm nào?",
-                    a: ["25/11/1945", "26/11/1945", "25/11/1946", "26/11/1946"],
-                    c: 0,
-                },
-                {
-                    id: 109,
-                    q: "Chỉ thị Kháng chiến kiến quốc của Trung ương Đảng ngày 25/11/1945, xác định nhiệm vụ nào là trung tâm, bao trùm nhất?",
-                    a: [
-                        "Củng cố, bảo vệ chính quyền cách mạng",
-                        "Chống thực dân Pháp xâm lược",
-                        "Cải thiện đời sống nhân dân",
-                        "Cả A, B và C",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 110,
-                    q: "Chỉ thị kháng chiến, kiến quốc đã xác định khẩu hiệu cách mạng Việt Nam sau cách mạng tháng Tám -1945:",
-                    a: [
-                        "Dân tộc giải phóng",
-                        "Thành lập chính quyền cách mạng",
-                        "Dân tộc trên hết, Tổ quốc trên hết",
-                        "Đoàn kết dân tộc và thế giới",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 111,
-                    q: "Chủ trương và sách lược của Trung ương Đảng trong việc đối phó với các lực lượng đế quốc sau cách mạng tháng Tám-1945:",
-                    a: [
-                        "Thêm bạn bớt thù",
-                        "Hoa -Việt thân thiện",
-                        "Độc lập về chính trị, nhân nhượng về kinh tế đối với Pháp",
-                        "Cả ba phương án kể trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 112,
-                    q: "Những thành tựu căn bản của cách mạng Việt Nam trong việc xây dựng và củng cố chính quyền cách mạng sau 1945:",
-                    a: [
-                        "Tổ chức tổng tuyển cử và ban hành Hiến pháp",
-                        "Củng cố và mở rộng mặt trận Việt Minh",
-                        "Xây dựng và phát triển các lực lượng vũ trang nhân dân",
-                        "Tất cả các phương án trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 113,
-                    q: "Phong trào mà Đảng đã vận động nhân dân chống nạn mù chữ diễn ra sau cách mạng tháng Tám -1945:",
-                    a: [
-                        "Xây dựng nếp sống văn hoá mới",
-                        "Bình dân học vụ",
-                        "Bài trừ các tệ nạn xã hội",
-                        "Xoá bỏ văn hoá thực dân nô dịch phản động",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 114,
-                    q: "Nhân dân Nam bộ đứng lên kháng chiến chống thực dân Pháp xâm lược bảo vệ:",
-                    a: ["23-9-1945", "23-11-1945", "19-12-1946", "10-12-1946"],
-                    c: 0,
-                },
-                {
-                    id: 115,
-                    q: "Đảng ta đã phát động phong trào gì để ủng hộ nhân lực cho Nam Bộ kháng chiến chống Pháp từ ngày 23-9-1945:",
-                    a: [
-                        'Vì miền Nam "thành đồng Tổ quốc"',
-                        "Hướng về miền Nam ruột thịt",
-                        "Nam tiến",
-                        "Cả ba phương án trên",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 116,
-                    q: "Quốc hội đầu tiên của nước Việt Nam dân chủ cộng hoà được bầu khi nào?",
-                    a: ["4/1/1946", "5/1/1946", "6/1/1946", "7/1/1946"],
-                    c: 2,
-                },
-                {
-                    id: 117,
-                    q: "Kỳ họp Quốc hội thứ nhất thành lập chính phủ đầu tiên của nước Việt Nam dân chủ cộng hoà khi nào?",
-                    a: ["3/2/1946", "2/3/1946", "3/4/1946", "3/3/1945"],
-                    c: 1,
-                },
-                {
-                    id: 118,
-                    q: "Hiến pháp đầu tiên của nước Việt Nam dân chủ cộng hoà được thông qua vào ngày tháng năm nào?",
-                    a: ["9/11/1945", "10/10/1946", "9/11/1946", "9/11/1947"],
-                    c: 2,
-                },
-                {
-                    id: 119,
-                    q: "Hà Nội được xác định là thủ đô của nước Việt Nam dân chủ cộng hoà vào năm nào?",
-                    a: ["Năm 1945", "Năm 1946", "Năm 1954", "Năm 1930"],
-                    c: 1,
-                },
-                {
-                    id: 120,
-                    q: "Để gạt mũi nhọn tiến công kẻ thù, Đảng ta đã tuyên bố tự giải tán vào ngày tháng năm nào và lấy tên gọi là gì?",
-                    a: [
-                        "2.9.1945- Đảng Cộng sản Đông Dương",
-                        "25-11-1945- Hội nghiên cứu Chủ nghĩa Mác-Lênin",
-                        "3-2-1946- Đảng Lao động Việt Nam",
-                        "11-11-1945- Hội nghiên cứu Chủ nghĩa Mác ở Đông Dương",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 121,
-                    q: "Những sách lược nhân nhượng của Đảng ta với quân Tưởng và tay sai ở miền Bắc sau cách mạng tháng Tám:",
-                    a: [
-                        "Cho Việt Quốc, Việt Cách tham gia Quốc hội và Chính phủ",
-                        "Cung cấp lương thực thực phẩm cho quân đội Tưởng",
-                        "Chấp nhận cho quân Tưởng tiêu tiền Quan kin, Quốc tệ",
-                        "Cả ba phương án kể trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 122,
-                    q: "Để quân Tưởng và tay sai khỏi kiếm cớ sách nhiễu, Đảng chủ trương:",
-                    a: [
-                        "Dĩ hoà vi quý",
-                        "Hoa Việt thân thiện",
-                        "Biến xung đột lớn thành xung đột nhỏ, biến xung đột nhỏ thành không có xung đột",
-                        "Cả hai phương án B và C",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 123,
-                    q: "Đảng ta đã lựa chọn giải pháp gì trong mối quan hệ với thực dân Pháp sau ngày Pháp và Tưởng ký hiệp ước Trùng Khánh (28-2-1946):",
-                    a: [
-                        "Thương lượng và hoà hoãn với Pháp",
-                        "Kháng chiến chống thực dân Pháp",
-                        "Nhân nhượng với quân đội Tưởng",
-                        "Chống cả quân đội Tưởng và Pháp",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 124,
-                    q: "Tại sao Đảng lại lựa chọn giải pháp thương lượng với Pháp:",
-                    a: [
-                        "Chấm dứt cuộc kháng chiến ở Nam Bộ",
-                        "Buộc quân Tưởng phải rút ngay về nước, tránh được tình trạng cùng một lúc phải đối phó với nhiều kẻ thù",
-                        "Phối hợp với Pháp tấn công Tưởng",
-                        "Cả A, B và C",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 125,
-                    q: "Sự kiện mở đầu cho sự hoà hoãn giữa Việt Nam và Pháp:",
-                    a: [
-                        "Pháp ngừng bắn ở miền Nam",
-                        "Việt Nam với Pháp nhân nhượng quyền lợi ở miền Bắc",
-                        "Ký kết hiệp định Sơ bộ 6-3-1946 giữa Việt Nam với Pháp",
-                        "Pháp và Tưởng ký hiệp ước Trùng Khánh trao đổi quyền lợi cho nhau",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 126,
-                    q: "Sau khi ký bản Hiệp định Sơ bộ, ngày 9-3-1946, Ban thường vụ Trung ương Đảng đã ra:",
-                    a: [
-                        "Chỉ thị kháng chiến kiến quốc",
-                        "Chỉ thị Hoà để tiến",
-                        "Chỉ thị Toàn quốc kháng chiến",
-                        "Tất cả các phương án trên",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 127,
-                    q: "Sau bản Hiệp định sơ bộ, ngày 14-9 Chủ tịch Hồ Chí Minh đã thay mặt Chính phủ ký bản Tạm ước với Chính phủ Pháp với nội dung:",
-                    a: [
-                        "Pháp thừa nhận các quyền dân tộc cơ bản của nước Việt Nam",
-                        "Chấm dứt chiến tranh ở Việt Nam",
-                        "Đình chỉ xung đột ở miền Nam và sẽ tiếp tục đàm phán vào 1-1947",
-                        "Cả A, B và C",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 128,
-                    q: "Cuối năm 1946, thực dân Pháp đã bội ước, liên tục tăng cường khiêu khích và lấn chiếm thêm một số địa điểm như:",
-                    a: [
-                        "Thành phố Hải Phòng, thị xã Lạng Sơn",
-                        "Đà Nẵng, Sài Gòn",
-                        "Hải Phòng, Hải Dương, Lào Cai, Yên Bái",
-                        "Thành phố Hải phòng, thị xã Lạng Sơn, Đà Nẵng, Hà Nội",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 129,
-                    q: "Hiệp ước Hoa - Pháp được ký kết ở đâu?",
-                    a: ["Pari", "Trùng Khánh", "Hương Cảng", "Ma Cao"],
-                    c: 1,
-                },
-                {
-                    id: 130,
-                    q: "Quân đội của Tưởng Giới Thạch đã rút hết khỏi miền Bắc nước ta vào thời gian nào?",
-                    a: ["Cuối tháng 8/1946", "Đầu tháng 8/1946", "Đầu tháng 9/1946", "Cuối tháng 9/1946"],
-                    c: 2,
-                },
-                {
-                    id: 131,
-                    q: "Hiệp định Sơ bộ được Hồ Chí Minh ký với G. Sanhtony vào thời gian nào?",
-                    a: ["6-3-1946", "14-9-1946", "19-12-1946", "10-12-1946"],
-                    c: 0,
-                },
-                {
-                    id: 132,
-                    q: "Hội nghị Phôngtennoblô diễn ra vào thời gian nào?",
-                    a: ["Từ 10/5 - 20/8/1945", "Từ 15/6 - 25/9/1946", "6/7 - 10/9/1946", "12/8 - 30/10/1946"],
-                    c: 2,
-                },
-                {
-                    id: 133,
-                    q: "Chủ tịch Hồ Chí Minh ra Lời kêu gọi toàn quốc kháng chiến vào thời điểm nào:",
-                    a: ["Đêm ngày 18-9-1946", "Đêm ngày 19-12-1946", "Ngày 20-12-1946", "Cả ba phương án đều sai"],
-                    c: 1,
-                },
-                {
-                    id: 134,
-                    q: "Hội nghị Ban thường vụ Trung Đảng họp mở rộng quyết định phát động cuộc kháng chiến toàn quốc họp vào thời gian nào?",
-                    a: ["Ngày 18-12-1946", "Ngày 19-12-1946", "Ngày 20-12-1946", "Ngày 22-12-1946"],
-                    c: 0,
-                },
-                {
-                    id: 135,
-                    q: "Cuộc tổng giao chiến lịch sử mở đầu của kháng chiến chống thực dân Pháp của quân và dân ta ở Hà Nội đã diễn ra trong:",
-                    a: ["60 ngày đêm", "30 ngày đêm", "12 ngày đêm", "90 ngày đêm"],
-                    c: 0,
-                },
-                {
-                    id: 136,
-                    q: "Những văn kiện nào dưới đây được coi như Cương lĩnh kháng chiến của Đảng ta:",
-                    a: [
-                        "Lời kêu gọi toàn quốc kháng chiến của chủ tịch Hồ Chí Minh",
-                        "Chỉ thị toàn dân kháng chiến của Trung ương Đảng",
-                        'Tác phẩm "Kháng chiến nhất định thắng lợi" của Tổng Bí thư Trường Chinh',
-                        "Cả ba phương án trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 137,
-                    q: "Nhiệm vụ hàng đầu của nhân dân ta trong quá trình kháng chiến chống thực dân Pháp:",
-                    a: [
-                        "Chống đế quốc giành độc lập dân tộc",
-                        "Xoá bỏ những tàn tích phong kiến đem lại ruộng đất cho nông dân",
-                        "Xây dựng chế độ dân chủ mới",
-                        "Cả ba phương án trên",
-                    ],
-                    c: 0,
-                },
-                {
-                    id: 138,
-                    q: "Phương châm chiến lược của cuộc kháng chiến chống Pháp là:",
-                    a: [
-                        "Toàn dân",
-                        "Toàn diện",
-                        "Lâu dài và dựa vào sức mình là chính",
-                        "Cả ba phương án trên đều sai",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 139,
-                    q: 'Tác phẩm "Kháng chiến nhất định thắng lợi" được phát hành khi nào?',
-                    a: ["6/ 1946", "7/ 1946", "7/ 1947", "9/1947"],
-                    c: 2,
-                },
-                {
-                    id: 140,
-                    q: "Tác giả tác phẩm Kháng chiến nhất định thắng lợi là ai?",
-                    a: ["Hồ Chí Minh", "Lê Duẩn", "Trường Chinh", "Phạm Văn Đồng"],
-                    c: 2,
-                },
-                {
-                    id: 141,
-                    q: "Đâu là nơi được coi là căn cứ địa cách mạng của cả nước trong kháng chiến chống Pháp?",
-                    a: ["Tây Bắc", "Việt Bắc", "Hà Nội", "Điện Biên Phủ"],
-                    c: 1,
-                },
-                {
-                    id: 142,
-                    q: "Chiến thắng nào đã căn bản đánh bại âm mưu đánh nhanh, thắng nhanh của thực dân Pháp?",
-                    a: ["Việt Bắc", "Trung Du", "Biên Giới", "Hà Nam Ninh"],
-                    c: 0,
-                },
-                {
-                    id: 143,
-                    q: "Khi bắt đầu tiến hành xâm lược Việt Nam, thực dân Pháp đã thực hiện chiến lược:",
-                    a: [
-                        "Dùng người Việt đánh người Việt",
-                        "Lấy chiến tranh nuôi chiến tranh",
-                        "Đánh nhanh thắng nhanh",
-                        "Hai phương án A và B",
-                    ],
-                    c: 2,
-                },
-                {
-                    id: 144,
-                    q: "Ngày 15-10-1947, để đối phó với cuộc tấn công của thực dân Pháp lên căn cứ địa Việt Bắc, Ban thường vụ Trung ương Đảng đã đề ra:",
-                    a: [
-                        "Chỉ thị kháng chiến, kiến quốc",
-                        'Chỉ thị "Phá tan cuộc tấn công mùa Đông của giặc Pháp"',
-                        "Chủ trương tiến công quân Pháp ở vùng sau lưng chúng",
-                        "Lời kêu gọi đánh tan cuộc tấn công lên Việt Bắc của thực dân Pháp",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 145,
-                    q: "Một số thành quả tiêu biểu của chiến dịch Việt Bắc Thu Đông 1947:",
-                    a: [
-                        "Tiêu diệt 7000 tên địch, phá huỷ hàng trăm xe, đánh chìm 16 ca nô và nhiều phương tiện chiến tranh khác",
-                        "Bảo vệ vững chắc cơ quan đầu não và căn cứ địa kháng chiến",
-                        "Lực lượng vũ trang ta được tôi luyện và trưởng thành",
-                        "Cả 3 phương án trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 146,
-                    q: "Sau chiến thắng Việt Bắc Thu Đông 1947 những chuyển biến lớn của tình hình thế giới ảnh hưởng đến cách mạng Việt Nam:",
-                    a: [
-                        "Sự thắng lợi và phát triển mạnh mẽ của Liên Xô, các nước dân chủ nhân dân á - Âu và Phong trào giải phóng dân tộc trên thế giới",
-                        "Đế quốc Mỹ thực hiện âm mưu vừa vực dậy vừa khống chế các nước Tây Âu",
-                        "Thực dân Pháp vấp phải những khó khăn về kinh tế, chính trị và phong trào phản chiến ở nước Pháp phát triển",
-                        "Tất cả các phương án trên",
-                    ],
-                    c: 3,
-                },
-                {
-                    id: 147,
-                    q: "Để thúc đẩy cuộc kháng chiến tiến lên, theo sáng kiến của Chủ tịch Hồ Chí Minh, ngày 27-3-1948, Ban Thường vụ TW Đảng ra chỉ thị:",
-                    a: [
-                        "Chống lại âm mưu thâm độc dùng người Việt đánh người Việt",
-                        "Phát động phong trào thi đua ái quốc",
-                        "Tiến hành chiến tranh du kích trên cả nước",
-                        "Tất cả các phương án trên",
-                    ],
-                    c: 1,
-                },
-                {
-                    id: 148,
-                    q: "Chiến dịch nào còn có tên là chiến dịch Hoàng Hoa Thám?",
-                    a: ["Trung Du", "Đường 18", "Hà Nam Ninh", "Biên giới"],
-                    c: 1,
-                },
-                {
-                    id: 149,
-                    q: "Hội nghị văn hoá toàn quốc lần thứ hai diễn ra khi nào?",
-                    a: ["6/1948", "7/1948", "7/1949", "8/1949"],
-                    c: 1,
-                },
-                {
-                    id: 150,
-                    q: "Đại hội văn hoá toàn quốc lần thứ hai xác định phương châm xây dựng nền văn hoá mới:",
-                    a: ["Dân tộc hoá", "Đại chúng hoá", "Khoa học hoá", "Cả ba phương án trên"],
-                    c: 3,
-                },
-            ];
-
-            // Trạng thái vận hành của bài trắc nghiệm
             let activeQuestions = [];
             let currentIndex = 0;
             let userAnswers = {};
             let correctCount = 0;
             let wrongCount = 0;
 
+            function shuffleArray(arr) {
+                const cloned = [...arr];
+                for (let i = cloned.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [cloned[i], cloned[j]] = [cloned[j], cloned[i]];
+                }
+                return cloned;
+            }
+
+            function updateSelectedCount() {
+                const fromQ = parseInt(document.getElementById("inputFrom").value) || 1;
+                const toQ = parseInt(document.getElementById("inputTo").value) || fullQuestions.length;
+                const count = Math.max(
+                    0,
+                    Math.min(fullQuestions.length, Math.max(fromQ, toQ)) - Math.max(1, Math.min(fromQ, toQ)) + 1,
+                );
+                document.getElementById("badgeTotalQuestions").innerText = count;
+                document.getElementById("introSubText").innerText = `Ôn tập kiến thức theo bộ ${count} câu hỏi`;
+            }
+
             function initQuiz(fromQ = 1, toQ = 150, shuffleQ = false, shuffleA = false) {
                 const min = Math.max(1, Math.min(fromQ, toQ));
                 const max = Math.min(fullQuestions.length, Math.max(fromQ, toQ));
 
-                let sliced = fullQuestions.slice(min - 1, max).map((item, originalSeq) => {
+                let sliced = fullQuestions.slice(min - 1, max).map((item) => {
                     let opts = item.a.map((txt, idx) => ({
                         text: txt,
                         isCorrect: idx === item.c,
                     }));
 
                     if (shuffleA) {
-                        opts = shuffle(opts);
+                        opts = shuffleArray(opts);
                     }
 
                     return {
@@ -1499,7 +403,7 @@
                 });
 
                 if (shuffleQ) {
-                    sliced = shuffle(sliced);
+                    sliced = shuffleArray(sliced);
                 }
 
                 activeQuestions = sliced;
@@ -1514,15 +418,6 @@
                 renderCurrentQuestion();
             }
 
-            function shuffle(arr) {
-                const cloned = [...arr];
-                for (let i = cloned.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [cloned[i], cloned[j]] = [cloned[j], cloned[i]];
-                }
-                return cloned;
-            }
-
             function renderCurrentQuestion() {
                 if (!activeQuestions.length) return;
 
@@ -1530,18 +425,15 @@
                 const total = activeQuestions.length;
                 const letters = ["A", "B", "C", "D"];
 
-                // Cập nhật thanh tiến trình và thông tin câu
                 const pct = ((currentIndex + 1) / total) * 100;
                 document.getElementById("progressBar").style.width = `${pct}%`;
                 document.getElementById("progressText").innerText = `${currentIndex + 1} / ${total}`;
                 document.getElementById("questionIndexLabel").innerText = `CÂU HỎI ${currentIndex + 1}`;
                 document.getElementById("questionContent").innerText = q.question;
 
-                // Nút lui/tới
                 document.getElementById("prevBtn").disabled = currentIndex === 0;
                 document.getElementById("nextBtn").innerText = currentIndex === total - 1 ? "Hoàn thành" : "Tiếp tục";
 
-                // Tạo các ô lựa chọn
                 const container = document.getElementById("answersContainer");
                 container.innerHTML = "";
 
@@ -1552,22 +444,19 @@
                     const btn = document.createElement("button");
                     btn.type = "button";
                     btn.className =
-                        "answer-btn w-full text-left p-4 rounded-2xl border border-slate-200 text-sm font-medium transition flex items-center gap-3 bg-white";
+                        "answer-btn w-full text-left p-4 rounded-2xl border border-slate-200 text-sm font-medium transition flex items-center gap-3 bg-white cursor-pointer";
 
                     let labelColor = "text-slate-400";
 
                     if (hasAnswered) {
                         btn.disabled = true;
                         if (opt.isCorrect) {
-                            // Đúng -> Xanh lá
                             btn.classList.add("correct-highlight");
                             labelColor = "text-green-600";
                         } else if (idx === chosenOptionIndex) {
-                            // Đã chọn nhưng sai -> Đỏ
                             btn.classList.add("user-wrong");
                             labelColor = "text-red-600";
                         } else {
-                            // Các câu không liên quan
                             btn.classList.add("other-options");
                         }
                     } else {
@@ -1605,44 +494,370 @@
             }
 
             function nextQuestion() {
-                if (currentIndex < activeQuestions.length - 1) {
+                // 1. Nếu là câu cuối cùng thì chuyển sang màn hình kết quả
+                if (currentIndex >= activeQuestions.length - 1) {
+                    showResultScreen();
+                    return;
+                }
+
+                const questionSec = document.getElementById("questionSection");
+
+                if (!questionSec) {
+                    // Dự phòng nếu không tìm thấy ID questionSection thì vẫn tăng câu bình thường
                     currentIndex++;
                     renderCurrentQuestion();
-                } else {
-                    alert(`Bạn đã hoàn thành bài thi!\nSố câu đúng: ${correctCount} / ${activeQuestions.length}`);
+                    return;
                 }
+
+                // 2. Chạy animation trượt sang trái
+                questionSec.classList.remove("slide-in-right", "slide-in-left");
+                questionSec.classList.add("slide-out-left");
+
+                setTimeout(() => {
+                    currentIndex++;
+                    renderCurrentQuestion();
+
+                    questionSec.classList.remove("slide-out-left");
+                    questionSec.classList.add("slide-in-right");
+
+                    setTimeout(() => {
+                        questionSec.classList.remove("slide-in-right");
+                    }, 200);
+                }, 150);
             }
 
             function prevQuestion() {
                 if (currentIndex > 0) {
-                    currentIndex--;
-                    renderCurrentQuestion();
+                    const questionSec = document.getElementById("questionSection");
+
+                    questionSec.classList.add("slide-out-right");
+
+                    setTimeout(() => {
+                        currentIndex--;
+                        renderCurrentQuestion();
+
+                        questionSec.classList.remove("slide-out-right");
+                        questionSec.classList.add("slide-in-left");
+
+                        setTimeout(() => {
+                            questionSec.classList.remove("slide-in-left");
+                        }, 250);
+                    }, 180);
                 }
             }
 
-            function resetAndRestart() {
+            function handleStartQuiz() {
                 const fromQ = parseInt(document.getElementById("inputFrom").value) || 1;
-                const toQ = parseInt(document.getElementById("inputTo").value) || 150;
+                const toQ = parseInt(document.getElementById("inputTo").value) || fullQuestions.length;
                 const shuffleQ = document.getElementById("checkShuffleQ").checked;
                 const shuffleA = document.getElementById("checkShuffleA").checked;
-                initQuiz(fromQ, toQ, shuffleQ, shuffleA);
+
+                const startScreen = document.getElementById("startScreen");
+                const quizScreen = document.getElementById("quizScreen");
+
+                // Màn hình bắt đầu lướt sang trái biến mất
+                startScreen.classList.add("slide-out-left");
+
+                setTimeout(() => {
+                    initQuiz(fromQ, toQ, shuffleQ, shuffleA);
+
+                    startScreen.classList.add("hidden");
+                    startScreen.classList.remove("slide-out-left");
+
+                    quizScreen.classList.remove("hidden");
+                    quizScreen.classList.add("slide-in-right");
+
+                    setTimeout(() => {
+                        quizScreen.classList.remove("slide-in-right");
+                    }, 250);
+                }, 180);
             }
 
-            // Modal cấu hình
-            function toggleConfigModal() {
-                document.getElementById("configModal").showModal();
-            }
-            function closeConfigModal() {
-                document.getElementById("configModal").close();
-            }
-            function applySettings() {
-                resetAndRestart();
-                closeConfigModal();
+            function backToStartScreen() {
+                const startScreen = document.getElementById("startScreen");
+                const quizScreen = document.getElementById("quizScreen");
+
+                if (!startScreen || !quizScreen) return;
+
+                // Xóa class animation cũ để tránh xung đột
+                quizScreen.classList.remove("slide-in-right", "slide-in-left");
+                startScreen.classList.remove("slide-out-left", "slide-out-right");
+
+                // Chạy hiệu ứng lướt ra màn hình chính
+                quizScreen.classList.add("slide-out-right");
+
+                setTimeout(() => {
+                    quizScreen.classList.add("hidden");
+                    quizScreen.classList.remove("slide-out-right");
+
+                    startScreen.classList.remove("hidden");
+                    startScreen.classList.add("slide-in-left");
+
+                    setTimeout(() => {
+                        startScreen.classList.remove("slide-in-left");
+                    }, 250);
+                }, 180);
             }
 
-            // Khởi tạo chạy mặc định khi trang tải xong
+            function handleStartQuiz() {
+                const fromQ = parseInt(document.getElementById("inputFrom").value) || 1;
+                const toQ = parseInt(document.getElementById("inputTo").value) || fullQuestions.length;
+                const shuffleQ = document.getElementById("checkShuffleQ").checked;
+                const shuffleA = document.getElementById("checkShuffleA").checked;
+
+                const startScreen = document.getElementById("startScreen");
+                const quizScreen = document.getElementById("quizScreen");
+
+                // Màn hình bắt đầu lướt sang trái biến mất
+                startScreen.classList.add("slide-out-left");
+
+                setTimeout(() => {
+                    initQuiz(fromQ, toQ, shuffleQ, shuffleA);
+
+                    startScreen.classList.add("hidden");
+                    startScreen.classList.remove("slide-out-left");
+
+                    quizScreen.classList.remove("hidden");
+                    quizScreen.classList.add("slide-in-right");
+
+                    setTimeout(() => {
+                        quizScreen.classList.remove("slide-in-right");
+                    }, 250);
+                }, 180);
+            }
+
+            // Hiển thị màn hình kết quả hoàn chỉnh theo mẫu
+            function showResultScreen() {
+                const quizScreen = document.getElementById("quizScreen");
+                const resultScreen = document.getElementById("resultScreen");
+
+                if (!quizScreen || !resultScreen) return;
+
+                // 1. Chạy hiệu ứng trượt màn hình câu hỏi ra bên trái
+                quizScreen.classList.remove("slide-in-right", "slide-in-left");
+                quizScreen.classList.add("slide-out-left");
+
+                setTimeout(() => {
+                    // 2. Ẩn màn hình làm bài sau khi trượt xong
+                    quizScreen.classList.add("hidden");
+                    quizScreen.classList.remove("slide-out-left");
+
+                    // 3. Tính toán và đổ dữ liệu kết quả
+                    const total = activeQuestions && activeQuestions.length ? activeQuestions.length : 0;
+                    const correct = typeof correctCount === "number" ? correctCount : 0;
+                    const wrong = Math.max(0, total - correct);
+                    const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+                    const elTotal = document.getElementById("resTotal");
+                    const elCorrect = document.getElementById("resCorrect");
+                    const elWrong = document.getElementById("resWrong");
+                    const elPercent = document.getElementById("resPercentText");
+                    const elBar = document.getElementById("resProgressBar");
+
+                    if (elTotal) elTotal.textContent = total;
+                    if (elCorrect) elCorrect.textContent = correct;
+                    if (elWrong) elWrong.textContent = wrong;
+                    if (elPercent) elPercent.textContent = `${percent}%`;
+                    if (elBar) elBar.style.width = `${percent}%`;
+
+                    // Xử lý ẩn/hiện nút làm lại câu sai
+                    const btnRetryWrong = document.getElementById("btnRetryWrong");
+                    if (btnRetryWrong) {
+                        btnRetryWrong.classList.toggle("hidden", wrong === 0);
+                    }
+
+                    // Render danh sách xem lại câu hỏi
+                    try {
+                        renderResultReviewList();
+                    } catch (e) {
+                        console.warn("Lỗi khi render review list:", e);
+                    }
+
+                    // 4. Cho màn hình kết quả trượt vào từ bên phải
+                    resultScreen.classList.remove("hidden", "slide-out-left", "slide-out-right");
+                    resultScreen.classList.add("slide-in-right");
+
+                    setTimeout(() => {
+                        resultScreen.classList.remove("slide-in-right");
+                    }, 250);
+                }, 180);
+            }
+
+            // Render danh sách câu hỏi kèm đáp án đúng
+            function renderResultReviewList() {
+                const listContainer = document.getElementById("resQuestionList");
+                if (!listContainer || !activeQuestions) return;
+
+                listContainer.innerHTML = "";
+
+                activeQuestions.forEach((q, idx) => {
+                    const questionText = q.question || q.q || `Câu ${idx + 1}`;
+
+                    // 1. Tìm đáp án đúng
+                    let correctText = "Chưa có đáp án";
+                    if (Array.isArray(q.options)) {
+                        const correctOpt = q.options.find((opt) => opt.isCorrect);
+                        if (correctOpt) {
+                            correctText =
+                                typeof correctOpt === "object"
+                                    ? correctOpt.text || correctOpt.content || Object.values(correctOpt)[0]
+                                    : correctOpt;
+                        }
+                    } else if (q.a && q.c !== undefined) {
+                        correctText = q.a[q.c];
+                    }
+
+                    // 2. Lấy đáp án người dùng đã bấm
+                    const userChoiceIdx = userAnswers[idx];
+                    let isCorrect = false;
+                    let userChoiceText = "Chưa chọn";
+
+                    if (userChoiceIdx !== undefined && q.options && q.options[userChoiceIdx]) {
+                        isCorrect = !!q.options[userChoiceIdx].isCorrect;
+                        const userOpt = q.options[userChoiceIdx];
+                        userChoiceText =
+                            typeof userOpt === "object"
+                                ? userOpt.text || userOpt.content || Object.values(userOpt)[0]
+                                : userOpt;
+                    }
+
+                    const item = document.createElement("div");
+                    item.className = "py-4 border-b border-slate-100 last:border-b-0 text-left";
+
+                    // Giao diện nếu làm ĐÚNG
+                    if (isCorrect) {
+                        item.innerHTML = `
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                <i class="fa-solid fa-check"></i>
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm sm:text-base font-semibold text-slate-800 leading-snug">
+                  <span class="text-slate-400 font-normal mr-1.5">#${idx + 1}</span>${questionText}
+                </p>
+                <div class="mt-2 text-xs sm:text-sm text-emerald-600 font-medium">
+                  Đáp án: <span class="font-bold">${correctText}</span>
+                </div>
+              </div>
+            </div>
+          `;
+                    }
+                    // Giao diện nếu làm SAI (đáp án đúng nằm tách riêng ở dòng dưới)
+                    else {
+                        item.innerHTML = `
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                <i class="fa-solid fa-xmark"></i>
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm sm:text-base font-semibold text-slate-800 leading-snug">
+                  <span class="text-slate-400 font-normal mr-1.5">#${idx + 1}</span>${questionText}
+                </p>
+                <div class="space-y-1.5 mt-2 text-xs sm:text-sm">
+                  <!-- Dòng đáp án đã chọn -->
+                  <div class="text-rose-500 font-medium">
+                    Bạn chọn: <span class="font-bold line-through">${userChoiceText}</span>
+                  </div>
+                  <!-- Dòng đáp án đúng ở ngay phía dưới -->
+                  <div class="text-emerald-600 font-medium">
+                    Đáp án đúng: <span class="font-bold">${correctText}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+                    }
+
+                    listContainer.appendChild(item);
+                });
+            }
+
+            // Xử lý nút: Làm lại toàn bộ bài thi
+            function handleRetryAll() {
+                const resultScreen = document.getElementById("resultScreen");
+                const quizScreen = document.getElementById("quizScreen");
+
+                // 1. Reset sạch toàn bộ trạng thái bài làm
+                currentIndex = 0;
+                correctCount = 0;
+                wrongCount = 0;
+
+                // Xóa sạch lịch sử đáp án đã chọn (hỗ trợ cả Array lẫn Object)
+                if (Array.isArray(userAnswers)) {
+                    userAnswers = [];
+                } else {
+                    userAnswers = {};
+                }
+
+                // Xóa thuộc tính lưu phụ nếu có
+                activeQuestions.forEach((q) => {
+                    delete q.userSelected;
+                });
+
+                // 2. Cập nhật lại huy hiệu/thống kê điểm trên thanh tiến trình
+                if (typeof updateBadges === "function") {
+                    updateBadges();
+                }
+
+                // 3. Chuyển màn hình và render lại câu hỏi đầu tiên
+                resultScreen.classList.add("hidden");
+                quizScreen.classList.remove("hidden");
+
+                renderCurrentQuestion();
+            }
+
+            // Xử lý nút: Chỉ làm lại những câu đã chọn SAI
+            function handleRetryWrong() {
+                // Lọc các câu mà người dùng trả lời sai hoặc chưa trả lời
+                const wrongQuestions = [];
+                activeQuestions.forEach((q, idx) => {
+                    const choice = userAnswers[idx];
+                    const isRight = choice !== undefined && q.options && q.options[choice]?.isCorrect;
+                    if (!isRight) {
+                        wrongQuestions.push(q);
+                    }
+                });
+
+                if (wrongQuestions.length === 0) return;
+
+                activeQuestions = [...wrongQuestions];
+                userAnswers = {}; // Reset lại mảng câu trả lời
+                currentIndex = 0;
+                correctCount = 0;
+                wrongCount = 0;
+
+                document.getElementById("resultScreen").classList.add("hidden");
+                document.getElementById("quizScreen").classList.remove("hidden");
+
+                if (typeof updateBadges === "function") updateBadges();
+                renderCurrentQuestion();
+            }
+
+            // Xử lý nút: Quay về trang chủ bắt đầu từ màn hình kết quả
+            function backToHomeFromResult() {
+                const resultScreen = document.getElementById("resultScreen");
+                const startScreen = document.getElementById("startScreen");
+
+                resultScreen.classList.add("slide-out-right");
+
+                setTimeout(() => {
+                    resultScreen.classList.add("hidden");
+                    resultScreen.classList.remove("slide-out-right");
+
+                    startScreen.classList.remove("hidden");
+                    startScreen.classList.add("slide-in-left");
+
+                    setTimeout(() => {
+                        startScreen.classList.remove("slide-in-left");
+                    }, 250);
+                }, 180);
+            }
+
             window.onload = () => {
-                initQuiz(1, 150, false, false);
+                document.getElementById("inputTo").value = fullQuestions.length;
+                document.getElementById("badgeTotalQuestions").innerText = fullQuestions.length;
+                document.getElementById("introSubText").innerText =
+                    `Ôn tập kiến thức theo bộ ${fullQuestions.length} câu hỏi`;
             };
         </script>
     </body>
