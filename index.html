@@ -86,18 +86,22 @@
 
                 <h1 class="text-xl sm:text-2xl font-bold text-[#1e293b] mb-1.5">Trắc nghiệm Lịch sử Đảng</h1>
                 <p class="text-xs sm:text-sm text-slate-500 mb-6" id="introSubText">
-                    Ôn tập kiến thức theo bộ 150 câu hỏi
+                    Ôn tập kiến thức theo bộ 265 câu hỏi
                 </p>
 
                 <!-- 3 Cột thông số -->
                 <div class="grid grid-cols-3 divide-x divide-slate-100 w-full mb-6 py-2 border-y border-slate-100">
                     <div class="flex flex-col items-center">
-                        <span class="text-base sm:text-lg font-bold text-[#1e293b]" id="badgeTotalQuestions">150</span>
-                        <span class="text-[11px] text-slate-400 mt-0.5">câu hỏi</span>
+                        <div>
+                            <span id="badgeTotalQuestions" class="block text-2xl font-extrabold text-slate-800"
+                                >265</span
+                            >
+                        </div>
+                        <span class="text-[11px] text-slate-400 mt-0.5">Câu hỏi</span>
                     </div>
                     <div class="flex flex-col items-center">
                         <span class="text-base sm:text-lg font-bold text-[#1e293b]">4</span>
-                        <span class="text-[11px] text-slate-400 mt-0.5">lựa chọn / câu</span>
+                        <span class="text-[11px] text-slate-400 mt-0.5">Lựa chọn / câu</span>
                     </div>
                     <div class="flex flex-col items-center justify-center">
                         <i class="fa-regular fa-clock text-slate-400 text-sm mb-0.5"></i>
@@ -114,30 +118,47 @@
 
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div>
-                            <label class="block text-xs font-medium text-slate-500 mb-1">Từ câu:</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label for="inputFrom" class="text-xs font-medium text-slate-600">Từ câu:</label>
+                                <span class="text-[11px] text-slate-400 font-normal">(Tối thiểu: 1)</span>
+                            </div>
                             <input
                                 type="number"
                                 id="inputFrom"
                                 value="1"
                                 min="1"
-                                max="150"
-                                onchange="updateSelectedCount()"
-                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm font-semibold outline-none focus:border-blue-500 transition"
+                                max="265"
+                                placeholder="1"
+                                oninput="updateSelectedCount()"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition"
                             />
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-slate-500 mb-1">Đến câu:</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label for="inputTo" class="text-xs font-medium text-slate-600">Đến câu:</label>
+                                <span class="text-[11px] text-slate-400 font-normal">(Tối đa: 265)</span>
+                            </div>
                             <input
                                 type="number"
                                 id="inputTo"
-                                value="150"
+                                value="265"
                                 min="1"
-                                max="150"
-                                onchange="updateSelectedCount()"
-                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm font-semibold outline-none focus:border-blue-500 transition"
+                                max="265"
+                                placeholder="265"
+                                oninput="updateSelectedCount()"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition"
                             />
                         </div>
                     </div>
+
+                    <!-- Dòng chú thích phạm vi câu hỏi -->
+                    <p class="text-[11px] text-slate-400 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-blue-500 text-[10px]"></i>
+                        <span
+                            >Phạm vi hợp lệ từ câu <strong>1</strong> đến câu <strong>265</strong>. Đang chọn làm:
+                            <strong id="selectedSummary" class="text-blue-600">265 câu</strong>.</span
+                        >
+                    </p>
 
                     <div class="space-y-2 pt-2 border-t border-slate-200 text-xs sm:text-sm text-slate-600">
                         <label class="flex items-center gap-2.5 cursor-pointer hover:text-slate-900 transition">
@@ -311,12 +332,6 @@
                 </div>
 
                 <!-- Danh sách xem lại các câu đã làm -->
-                <div class="mb-6">
-                    <h3 class="text-xs font-bold text-slate-700 mb-2">Xem lại bài làm</h3>
-                    <div id="resQuestionList" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
-                        <!-- JS tự động render từng câu vào đây -->
-                    </div>
-                </div>
 
                 <!-- Các nút bấm điều hướng -->
                 <!-- Các nút bấm điều hướng (chữ to, dễ bấm) -->
@@ -371,14 +386,31 @@
             }
 
             function updateSelectedCount() {
-                const fromQ = parseInt(document.getElementById("inputFrom").value) || 1;
-                const toQ = parseInt(document.getElementById("inputTo").value) || fullQuestions.length;
-                const count = Math.max(
-                    0,
-                    Math.min(fullQuestions.length, Math.max(fromQ, toQ)) - Math.max(1, Math.min(fromQ, toQ)) + 1,
-                );
-                document.getElementById("badgeTotalQuestions").innerText = count;
-                document.getElementById("introSubText").innerText = `Ôn tập kiến thức theo bộ ${count} câu hỏi`;
+                const totalLen =
+                    typeof fullQuestions !== "undefined" && fullQuestions.length ? fullQuestions.length : 265;
+
+                const fromInput = document.getElementById("inputFrom");
+                const toInput = document.getElementById("inputTo");
+
+                const fromQ = parseInt(fromInput.value) || 1;
+                const toQ = parseInt(toInput.value) || totalLen;
+
+                // Tính số lượng câu thực tế được chọn làm bài
+                const start = Math.max(1, Math.min(fromQ, toQ));
+                const end = Math.min(totalLen, Math.max(fromQ, toQ));
+                const count = Math.max(0, end - start + 1);
+
+                // Cập nhật dòng tóm tắt số câu đang chọn
+                const selectedSummary = document.getElementById("selectedSummary");
+                if (selectedSummary) {
+                    selectedSummary.innerText = `${count} câu`;
+                }
+
+                // Giữ nguyên dòng phụ đề cố định 265 câu, không bị nhảy số khi người dùng nhập
+                const introSubText = document.getElementById("introSubText");
+                if (introSubText) {
+                    introSubText.innerHTML = `Ngân hàng đề gồm <span class="font-semibold text-slate-700">${totalLen} câu hỏi</span> trắc nghiệm`;
+                }
             }
 
             function initQuiz(fromQ = 1, toQ = 150, shuffleQ = false, shuffleA = false) {
@@ -633,49 +665,39 @@
 
                 if (!quizScreen || !resultScreen) return;
 
-                // 1. Chạy hiệu ứng trượt màn hình câu hỏi ra bên trái
                 quizScreen.classList.remove("slide-in-right", "slide-in-left");
                 quizScreen.classList.add("slide-out-left");
 
                 setTimeout(() => {
-                    // 2. Ẩn màn hình làm bài sau khi trượt xong
                     quizScreen.classList.add("hidden");
                     quizScreen.classList.remove("slide-out-left");
 
-                    // 3. Tính toán và đổ dữ liệu kết quả
                     const total = activeQuestions && activeQuestions.length ? activeQuestions.length : 0;
                     const correct = typeof correctCount === "number" ? correctCount : 0;
                     const wrong = Math.max(0, total - correct);
                     const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
 
-                    const elTotal = document.getElementById("resTotal");
-                    const elCorrect = document.getElementById("resCorrect");
-                    const elWrong = document.getElementById("resWrong");
-                    const elPercent = document.getElementById("resPercentText");
-                    const elBar = document.getElementById("resProgressBar");
+                    document.getElementById("resTotal").textContent = total;
+                    document.getElementById("resCorrect").textContent = correct;
+                    document.getElementById("resWrong").textContent = wrong;
+                    document.getElementById("resPercentText").textContent = `${percent}%`;
+                    document.getElementById("resProgressBar").style.width = `${percent}%`;
 
-                    if (elTotal) elTotal.textContent = total;
-                    if (elCorrect) elCorrect.textContent = correct;
-                    if (elWrong) elWrong.textContent = wrong;
-                    if (elPercent) elPercent.textContent = `${percent}%`;
-                    if (elBar) elBar.style.width = `${percent}%`;
-
-                    // Xử lý ẩn/hiện nút làm lại câu sai
                     const btnRetryWrong = document.getElementById("btnRetryWrong");
                     if (btnRetryWrong) {
                         btnRetryWrong.classList.toggle("hidden", wrong === 0);
                     }
 
-                    // Render danh sách xem lại câu hỏi
-                    try {
-                        renderResultReviewList();
-                    } catch (e) {
-                        console.warn("Lỗi khi render review list:", e);
-                    }
+                    renderResultReviewList();
 
-                    // 4. Cho màn hình kết quả trượt vào từ bên phải
                     resultScreen.classList.remove("hidden", "slide-out-left", "slide-out-right");
                     resultScreen.classList.add("slide-in-right");
+
+                    // 👉 KÍCH HOẠT PHÁO GIẤY CHÚC MỪNG TẠI ĐÂY:
+                    // Có thể bắn khi hoàn thành hoặc khi đạt tỷ lệ >= 50%
+                    if (percent >= 50) {
+                        triggerCelebrationConfetti();
+                    }
 
                     setTimeout(() => {
                         resultScreen.classList.remove("slide-in-right");
@@ -853,12 +875,50 @@
                 }, 180);
             }
 
+            // Hàm bắn pháo giấy chúc mừng giống F8
+            function triggerCelebrationConfetti() {
+                if (typeof confetti !== "function") return;
+
+                const duration = 2.5 * 1000;
+                const animationEnd = Date.now() + duration;
+                const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+                function randomInRange(min, max) {
+                    return Math.random() * (max - min) + min;
+                }
+
+                const interval = setInterval(function () {
+                    const timeLeft = animationEnd - Date.now();
+
+                    if (timeLeft <= 0) {
+                        return clearInterval(interval);
+                    }
+
+                    const particleCount = 45 * (timeLeft / duration);
+
+                    // Bắn từ góc trái qua giữa
+                    confetti({
+                        ...defaults,
+                        particleCount,
+                        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                    });
+
+                    // Bắn từ góc phải qua giữa
+                    confetti({
+                        ...defaults,
+                        particleCount,
+                        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                    });
+                }, 250);
+            }
+
             window.onload = () => {
                 document.getElementById("inputTo").value = fullQuestions.length;
                 document.getElementById("badgeTotalQuestions").innerText = fullQuestions.length;
-                document.getElementById("introSubText").innerText =
-                    `Ôn tập kiến thức theo bộ ${fullQuestions.length} câu hỏi`;
+                document.getElementById("introSubText").innerText = `Ôn tập kiến thức theo bộ 265 câu hỏi`;
             };
         </script>
+        <!-- Thư viện hiệu ứng pháo giấy chúc mừng -->
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     </body>
 </html>
