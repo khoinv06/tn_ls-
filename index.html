@@ -116,7 +116,8 @@
                         <span>Tùy chỉnh đề thi</span>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 mb-3">
+                    <!-- KHU VỰC NHẬP TỪ CÂU - ĐẾN CÂU (MẶC ĐỊNH KHÓA Ô ĐẾN CÂU) -->
+                    <div class="grid grid-cols-2 gap-3 mb-2">
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label for="inputFrom" class="text-xs font-medium text-slate-600">Từ câu:</label>
@@ -125,11 +126,10 @@
                             <input
                                 type="number"
                                 id="inputFrom"
-                                value="1"
+                                placeholder="Nhập từ câu..."
                                 min="1"
                                 max="265"
-                                placeholder="1"
-                                oninput="updateSelectedCount()"
+                                oninput="onInputFromChange()"
                                 class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition"
                             />
                         </div>
@@ -141,22 +141,32 @@
                             <input
                                 type="number"
                                 id="inputTo"
-                                value="265"
+                                placeholder="Nhập đến câu..."
                                 min="1"
                                 max="265"
-                                placeholder="265"
-                                oninput="updateSelectedCount()"
-                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition"
+                                disabled
+                                oninput="clearRangeNotice()"
+                                onblur="checkRangeNotice()"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                             />
                         </div>
                     </div>
 
-                    <!-- Dòng chú thích phạm vi câu hỏi -->
-                    <p class="text-[11px] text-slate-400 mb-3 flex items-center gap-1.5">
+                    <!-- Chú ý cảnh báo (Mặc định ẩn, chỉ hiện khi nhập xong mà vi phạm) -->
+                    <div
+                        id="rangeNoticeBox"
+                        class="hidden mb-3 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2"
+                    >
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 shrink-0"></i>
+                        <span id="rangeNoticeMsg">Số câu không hợp lệ!</span>
+                    </div>
+
+                    <!-- Dòng thông tin số lượng câu -->
+                    <p id="rangeInfoText" class="text-[11px] text-slate-400 mb-3 flex items-center gap-1.5">
                         <i class="fa-solid fa-circle-info text-blue-500 text-[10px]"></i>
                         <span
-                            >Phạm vi hợp lệ từ câu <strong>1</strong> đến câu <strong>265</strong>. Đang chọn làm:
-                            <strong id="selectedSummary" class="text-blue-600">265 câu</strong>.</span
+                            >Phạm vi: câu 1 đến 265. Đang chọn:
+                            <strong id="selectedSummary" class="text-blue-600">0 câu</strong>.</span
                         >
                     </p>
 
@@ -385,31 +395,79 @@
                 return cloned;
             }
 
-            function updateSelectedCount() {
+            // Hàm khi người dùng gõ vào ô "Từ câu"
+            function handleFromChange() {
                 const totalLen =
                     typeof fullQuestions !== "undefined" && fullQuestions.length ? fullQuestions.length : 265;
-
                 const fromInput = document.getElementById("inputFrom");
                 const toInput = document.getElementById("inputTo");
 
-                const fromQ = parseInt(fromInput.value) || 1;
-                const toQ = parseInt(toInput.value) || totalLen;
+                const fromVal = parseInt(fromInput.value);
 
-                // Tính số lượng câu thực tế được chọn làm bài
-                const start = Math.max(1, Math.min(fromQ, toQ));
-                const end = Math.min(totalLen, Math.max(fromQ, toQ));
-                const count = Math.max(0, end - start + 1);
+                // Nếu ô "Từ câu" trống hoặc không hợp lệ -> Khóa ô "Đến câu"
+                if (isNaN(fromVal) || fromVal < 1 || fromVal > totalLen) {
+                    toInput.disabled = true;
+                    toInput.value = "";
+                } else {
+                    // Mở khóa ô "Đến câu" và đặt min bằng đúng giá trị "Từ câu"
+                    toInput.disabled = false;
+                    toInput.min = fromVal;
 
-                // Cập nhật dòng tóm tắt số câu đang chọn
-                const selectedSummary = document.getElementById("selectedSummary");
-                if (selectedSummary) {
-                    selectedSummary.innerText = `${count} câu`;
+                    // Nếu "Đến câu" đang nhỏ hơn "Từ câu", tự động nâng "Đến câu" bằng "Từ câu"
+                    const currentTo = parseInt(toInput.value);
+                    if (isNaN(currentTo) || currentTo < fromVal) {
+                        toInput.value = fromVal;
+                    }
                 }
 
-                // Giữ nguyên dòng phụ đề cố định 265 câu, không bị nhảy số khi người dùng nhập
-                const introSubText = document.getElementById("introSubText");
-                if (introSubText) {
-                    introSubText.innerHTML = `Ngân hàng đề gồm <span class="font-semibold text-slate-700">${totalLen} câu hỏi</span> trắc nghiệm`;
+                validateAndUpdateCount();
+            }
+
+            // Hàm khi người dùng gõ vào ô "Đến câu"
+            function handleToChange() {
+                validateAndUpdateCount();
+            }
+
+            // Hàm kiểm tra hợp lệ và cập nhật số lượng
+            function validateAndUpdateCount() {
+                const totalLen =
+                    typeof fullQuestions !== "undefined" && fullQuestions.length ? fullQuestions.length : 265;
+                const fromInput = document.getElementById("inputFrom");
+                const toInput = document.getElementById("inputTo");
+                const errText = document.getElementById("rangeErrorText");
+                const infoText = document.getElementById("rangeInfoText");
+                const summaryText = document.getElementById("selectedSummary");
+                const btnStart = document.querySelector('button[onclick*="startQuiz"], button[onclick*="initQuiz"]');
+
+                const fromQ = parseInt(fromInput.value);
+                const toQ = parseInt(toInput.value);
+
+                // Điều kiện hợp lệ: cả 2 có giá trị, trong khoảng 1-265, và fromQ <= toQ
+                const isValid = !isNaN(fromQ) && !isNaN(toQ) && fromQ >= 1 && toQ <= totalLen && fromQ <= toQ;
+
+                if (!isValid) {
+                    if (errText) errText.classList.remove("hidden");
+                    if (infoText) infoText.classList.add("hidden");
+                    fromInput.classList.add("border-rose-400", "focus:border-rose-500");
+                    toInput.classList.add("border-rose-400", "focus:border-rose-500");
+
+                    if (btnStart) {
+                        btnStart.disabled = true;
+                        btnStart.classList.add("opacity-50", "cursor-not-allowed");
+                    }
+                } else {
+                    if (errText) errText.classList.add("hidden");
+                    if (infoText) infoText.classList.remove("hidden");
+                    fromInput.classList.remove("border-rose-400", "focus:border-rose-500");
+                    toInput.classList.remove("border-rose-400", "focus:border-rose-500");
+
+                    const count = toQ - fromQ + 1;
+                    if (summaryText) summaryText.innerText = `${count} câu`;
+
+                    if (btnStart) {
+                        btnStart.disabled = false;
+                        btnStart.classList.remove("opacity-50", "cursor-not-allowed");
+                    }
                 }
             }
 
@@ -910,6 +968,98 @@
                         origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
                     });
                 }, 250);
+            }
+
+            // 1. Giới hạn ngân hàng câu hỏi (mặc định 265 câu)
+            const MAX_QUESTIONS =
+                typeof fullQuestions !== "undefined" && fullQuestions.length ? fullQuestions.length : 265;
+
+            // 2. Kích hoạt khi người dùng gõ vào ô "Từ câu"
+            function onInputFromChange() {
+                const fromInput = document.getElementById("inputFrom");
+                const toInput = document.getElementById("inputTo");
+                const fromVal = parseInt(fromInput.value);
+
+                clearRangeNotice();
+
+                // Kiểm tra: nếu "Từ câu" hợp lệ (từ 1 đến 265) thì mới mở khóa ô "Đến câu"
+                if (!isNaN(fromVal) && fromVal >= 1 && fromVal <= MAX_QUESTIONS) {
+                    toInput.disabled = false; // Mở khóa ô Đến câu
+                    toInput.min = fromVal; // Giới hạn giá trị nhỏ nhất của Đến câu
+                    toInput.max = MAX_QUESTIONS;
+                } else {
+                    toInput.disabled = true; // Khóa lại nếu Từ câu bị xóa trống hoặc không hợp lệ
+                    toInput.value = "";
+                }
+
+                updateSummaryText();
+            }
+
+            // 3. Xóa thông báo chú ý khi người dùng bắt đầu gõ lại
+            function clearRangeNotice() {
+                const noticeBox = document.getElementById("rangeNoticeBox");
+                const toInput = document.getElementById("inputTo");
+                if (noticeBox) noticeBox.classList.add("hidden");
+                if (toInput) toInput.classList.remove("border-rose-400", "focus:border-rose-500");
+            }
+
+            // 4. Kích hoạt khi người dùng click/rời chuột ra ngoài ô "Đến câu" (onblur)
+            function checkRangeNotice() {
+                const fromInput = document.getElementById("inputFrom");
+                const toInput = document.getElementById("inputTo");
+
+                const fromVal = parseInt(fromInput.value);
+                const toVal = parseInt(toInput.value);
+
+                // Trường hợp ô Đến câu trống
+                if (isNaN(toVal)) {
+                    if (toInput.value.trim() !== "") {
+                        showNotice("Vui lòng nhập số câu hợp lệ!");
+                    }
+                    return false;
+                }
+
+                // Văng chú ý nếu Đến câu nhỏ hơn Từ câu (ví dụ: Từ 2 đến 1)
+                if (toVal < fromVal) {
+                    showNotice(`Số câu kết thúc phải lớn hơn hoặc bằng câu bắt đầu.`);
+                    toInput.classList.add("border-rose-400");
+                    return false;
+                }
+
+                // Văng chú ý nếu vượt quá 265
+                if (toVal > MAX_QUESTIONS) {
+                    showNotice(`Chú ý: Ngân hàng đề chỉ có tối đa ${MAX_QUESTIONS} câu hỏi!`);
+                    toInput.classList.add("border-rose-400");
+                    return false;
+                }
+
+                clearRangeNotice();
+                updateSummaryText();
+                return true;
+            }
+
+            // Hiển thị khung chú ý
+            function showNotice(msg) {
+                const noticeBox = document.getElementById("rangeNoticeBox");
+                const noticeMsg = document.getElementById("rangeNoticeMsg");
+                if (noticeBox && noticeMsg) {
+                    noticeMsg.innerText = msg;
+                    noticeBox.classList.remove("hidden");
+                }
+            }
+
+            // Cập nhật số câu được chọn vào dòng tóm tắt
+            function updateSummaryText() {
+                const fromVal = parseInt(document.getElementById("inputFrom").value);
+                const toVal = parseInt(document.getElementById("inputTo").value);
+                const summaryText = document.getElementById("selectedSummary");
+
+                if (!isNaN(fromVal) && !isNaN(toVal) && toVal >= fromVal && fromVal >= 1 && toVal <= MAX_QUESTIONS) {
+                    const count = toVal - fromVal + 1;
+                    if (summaryText) summaryText.innerText = `${count} câu`;
+                } else {
+                    if (summaryText) summaryText.innerText = `0 câu`;
+                }
             }
 
             window.onload = () => {
