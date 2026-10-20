@@ -1294,9 +1294,9 @@ const fullQuestions = [
       "Pháp thừa nhận các quyền dân tộc cơ bản của nước Việt Nam",
       "Chấm dứt chiến tranh ở Việt Nam.",
       "Đình chỉ xung đột ở miền Nam và sẽ tiếp tục đàm phán vào 1-1947",
-      "Cả A, B và C"
+      "Tất cả các đáp án"
     ],
-    c: 2
+    c: 3
   },
   {
     id: 134,
