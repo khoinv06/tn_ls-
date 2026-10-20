@@ -1074,7 +1074,7 @@ const fullQuestions = [
       "Chống ngoại xâm",
       "Chống ngoại xâm và nội phản",
       "Diệt giặc đói, giặc dốt và giặc ngoại xâm",
-      "Cả ba phương án trên"
+      "Cả ba phương án còn lại"
     ],
     c: 2
   },
@@ -1096,7 +1096,7 @@ const fullQuestions = [
       "Củng cố, bảo vệ chính quyền cách mạng",
       "Chống thực dân Pháp xâm lược",
       "Cải thiện đời sống nhân dân",
-      "Cả A, B và C"
+      "Cả 3 đáp án còn lại"
     ],
     c: 0
   },
@@ -1228,7 +1228,7 @@ const fullQuestions = [
       "Cho Việt Quốc, Việt Cách tham gia Quốc hội và Chính phủ",
       "Cung cấp lương thực thực phẩm cho quân đội Tưởng",
       "Chấp nhận cho quân Tưởng tiêu tiền Quan kin, Quốc tệ",
-      "Cả ba phương án kể trên"
+      "Cả ba phương án còn lại"
     ],
     c: 3
   },
@@ -1261,7 +1261,7 @@ const fullQuestions = [
       "Chấm dứt cuộc kháng chiến ở Nam Bộ",
       "Buộc quân Tưởng phải rút ngay về nước, tránh được tình trạng cùng một lúc phải đối phó với nhiều kẻ thù",
       "Phối hợp với Pháp tấn công Tưởng.",
-      "Cả A, B và C"
+      "Cả 3 đáp án còn lại"
     ],
     c: 3
   },
@@ -1393,7 +1393,7 @@ const fullQuestions = [
       "Lời kêu gọi toàn quốc kháng chiến của chủ tịch Hồ Chí Minh",
       "Chỉ thị toàn dân kháng chiến của Trung ương Đảng",
       "Tác phẩm \"Kháng chiến nhất định thắng lợi\" của Tổng Bí thư Trường Chinh",
-      "Cả ba phương án trên"
+      "Cả ba phương án còn lại"
     ],
     c: 3
   },
