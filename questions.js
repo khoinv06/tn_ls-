@@ -89,7 +89,7 @@ const fullQuestions = [
     a: [
       "Đảng Xã hội Pháp",
       "Đảng Cộng sản Pháp",
-      "Tông Liên đoàn Lao động Pháp",
+      "Tổng Liên đoàn Lao động Pháp",
       "Hội Liên hiệp thuộc địa"
     ],
     c: 2
@@ -289,7 +289,7 @@ const fullQuestions = [
       "Chánh cương vắn tắt",
       "Sách lược vắn tắt",
       "Điều lệ vắn tắt và Chương trình vắn tắt",
-      "Cả A, B và C"
+      "Cả 3 đáp án còn lại"
     ],
     c: 3
   },
@@ -311,7 +311,7 @@ const fullQuestions = [
       "Làm tư sản dân quyền cách mạng và thổ địa cách mạng để đi tới xã hội cộng sản.",
       "Xây dựng một nước Việt Nam dân giầu nước mạnh xã hội công bằng, dân chủ và văn minh.",
       "Cách mạng tư sản dân quyền - phản đế và điền địa - lập chính quyền của công nông bằng hình thức Xô viết, để dự bị điều kiện đi tới cách mạng xã hội chủ nghĩa.",
-      "Cả a và b."
+      "Cả 3 đáp án còn lại."
     ],
     c: 0
   },
@@ -443,7 +443,7 @@ const fullQuestions = [
   {
     id: 52,
     q: "Được sự chỉ đạo của Quốc tế Cộng sản, ban lãnh đạo của Đảng ở nước ngoài được thành lập vào năm nào?",
-    a: ["Năm 1933", "Năm 1934", "Năm 1935", "1932"],
+    a: ["Năm 1933", "Năm 1934", "Năm 1935", "Năm 1932"],
     c: 1
   },
   {
@@ -542,7 +542,7 @@ const fullQuestions = [
       "Công khai, hợp pháp.",
       "Nửa công khai, nửa hợp pháp.",
       "Bí mật, bất hợp pháp.",
-      "Tất cả các hình thức trên."
+      "Tất cả các hình thức."
     ],
     c: 3
   },
@@ -1019,7 +1019,7 @@ const fullQuestions = [
       "đó là lúc so sánh lực lượng có lợi nhất đối với cách mạng",
       "đó là lúc kẻ thù cũ đã ngã gục nhưng kẻ thù mới chưa kịp đến",
       "quân Đồng minh có thể dựng ra một chính quyền trái với ý chí và nguyện vọng của nhân dân ta",
-      "tất cả các lý do trên"
+      "tất cả các lý do còn lại"
     ],
     c: 3
   },
@@ -1041,7 +1041,7 @@ const fullQuestions = [
       "Các thế lực đế quốc, phản động bao vây, chống phá",
       "Kinh tế kiệt quệ và nạn đói hoành hành",
       "Hơn 90% dân số không biết chữ",
-      "Tất cả các phương án trên"
+      "Tất cả các phương án còn lại"
     ],
     c: 3
   },
@@ -1118,7 +1118,7 @@ const fullQuestions = [
       "Thêm bạn bớt thù",
       "Hoa -Việt thân thiện",
       "Độc lập về chính trị, nhân nhượng về kinh tế đối với Pháp",
-      "Cả ba phương án kể trên"
+      "Cả ba phương án kể còn lại"
     ],
     c: 3
   },
@@ -1129,7 +1129,7 @@ const fullQuestions = [
       "Tổ chức tổng tuyển cử và ban hành Hiến pháp",
       "Củng cố và mở rộng mặt trận Việt Minh",
       "Xây dựng và phát triển các lực lượng vũ trang nhân dân",
-      "Tất cả các phương án trên"
+      "Tất cả các phương án còn lại"
     ],
     c: 3
   },
@@ -1162,7 +1162,7 @@ const fullQuestions = [
       "Vì miền Nam \"thành đồng Tổ quốc\"",
       "Hướng về miền Nam ruột thịt",
       "Nam tiến",
-      "Cả ba phương án trên"
+      "Cả ba phương án còn lại"
     ],
     c: 2
   },
@@ -1239,7 +1239,7 @@ const fullQuestions = [
       "Dĩ hoà vi quý",
       "Hoa Việt thân thiện",
       "Biến xung đột lớn thành xung đột nhỏ, biến xung đột nhỏ thành không có xung đột",
-      "Cả hai phương án B và C"
+      "Cả 3 phương án còn lại"
     ],
     c: 2
   },
@@ -1283,7 +1283,7 @@ const fullQuestions = [
       "Chỉ thị kháng chiến kiến quốc",
       "Chỉ thị Hoà để tiến",
       "Chỉ thị Toàn quốc kháng chiến",
-      "Tất cả các phương án trên"
+      "Tất cả các phương án còn lại"
     ],
     c: 1
   },
@@ -1470,7 +1470,7 @@ const fullQuestions = [
       "Dùng người Việt đánh người Việt",
       "Lấy chiến tranh nuôi chiến tranh",
       "Đánh nhanh thắng nhanh",
-      "Hai phương án A và B"
+      "Cả 3 phương án còn lại"
     ],
     c: 2
   },
