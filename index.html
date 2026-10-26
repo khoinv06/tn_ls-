@@ -179,14 +179,6 @@
                             />
                             <span>Xáo trộn thứ tự các câu hỏi</span>
                         </label>
-                        <label class="flex items-center gap-2.5 cursor-pointer hover:text-slate-900 transition">
-                            <input
-                                type="checkbox"
-                                id="checkShuffleA"
-                                class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
-                            />
-                            <span>Xáo trộn vị trí đáp án (A, B, C, D)</span>
-                        </label>
                     </div>
                 </div>
 
@@ -471,7 +463,7 @@
                 }
             }
 
-            function initQuiz(fromQ = 1, toQ = 150, shuffleQ = false, shuffleA = false) {
+            function initQuiz(fromQ = 1, toQ = 265, shuffleQ = false) {
                 const min = Math.max(1, Math.min(fromQ, toQ));
                 const max = Math.min(fullQuestions.length, Math.max(fromQ, toQ));
 
@@ -480,10 +472,6 @@
                         text: txt,
                         isCorrect: idx === item.c,
                     }));
-
-                    if (shuffleA) {
-                        opts = shuffleArray(opts);
-                    }
 
                     return {
                         id: item.id,
@@ -649,7 +637,7 @@
                 startScreen.classList.add("slide-out-left");
 
                 setTimeout(() => {
-                    initQuiz(fromQ, toQ, shuffleQ, shuffleA);
+                    initQuiz(fromQ, toQ, shuffleQ);
 
                     startScreen.classList.add("hidden");
                     startScreen.classList.remove("slide-out-left");

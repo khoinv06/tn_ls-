@@ -1052,7 +1052,7 @@ const fullQuestions = [
       "Cách mạng thế giới phát triển mạnh mẽ",
       "Hệ thống chính quyền cách mạng nhân dân được thiết lập",
       "Nhân dân có quyết tâm bảo vệ chế độ mới",
-      "Tất cả các phương án trên"
+      "Tất cả 3 phương án còn lại"
     ],
     c: 3
   },
@@ -1711,7 +1711,7 @@ const fullQuestions = [
     a: [
       "Đối tượng chính là chủ nghĩa đế quốc xâm lược, cụ thể là thực dân Pháp",
       "Đối tượng phụ là phong kiến, cụ thể là phong kiến phản động",
-      "Cả hai phương án A và B",
+      "Cả 3 đáp án",
       "Đế quốc và phong kiến Việt Nam"
     ],
     c: 3
@@ -1756,7 +1756,7 @@ const fullQuestions = [
       "Giai đoạn thứ nhất chủ yếu là hoàn thành giải phóng dân tộc",
       "Giai đoạn thứ hai chủ yếu là xoá bỏ di tích phong kiến và nửa phong kiến, triệt để thực hiện người cày có ruộng",
       "Giai đoạn thứ ba là chủ yếu xây dựng cơ sở cho CNXH",
-      "Cả ba phương án trên"
+      "Cả ba phương án còn lại"
     ],
     c: 3
   },
@@ -1780,7 +1780,7 @@ const fullQuestions = [
     "Truyền thống dân tộc",
     "Cả ba phương án trên"
   ],
-  c: 0
+  c: 2
 },
   {
     id: 177,
@@ -1932,7 +1932,7 @@ const fullQuestions = [
       "Cải cách ruộng đất",
       "Triệt để giảm tô, giảm tức",
       "Thí điểm và cải cách ruộng đất",
-      "Cả hai phương án B và C"
+      "Cả triệt để giảm tô, giảm tức và thí điểm và cải cách ruộng đất"
     ],
     c: 3
   },
