@@ -2,7 +2,7 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <title>Trắc nghiệm Lịch sử Đảng</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -90,21 +90,19 @@
                 </p>
 
                 <!-- 3 Cột thông số -->
-                <div class="grid grid-cols-3 divide-x divide-slate-100 w-full mb-6 py-2 border-y border-slate-100">
-                    <div class="flex flex-col items-center">
-                        <div>
-                            <span id="badgeTotalQuestions" class="block text-2xl font-extrabold text-slate-800"
-                                >265</span
-                            >
-                        </div>
+                <div
+                    class="grid grid-cols-3 divide-x divide-slate-200/80 w-full mb-6 py-3 bg-slate-50/60 border border-slate-200/80 rounded-2xl"
+                >
+                    <div class="flex flex-col items-center justify-center">
+                        <span id="badgeTotalQuestions" class="text-base sm:text-lg font-bold text-[#1e293b]">265</span>
                         <span class="text-[11px] text-slate-400 mt-0.5">Câu hỏi</span>
                     </div>
-                    <div class="flex flex-col items-center">
+                    <div class="flex flex-col items-center justify-center">
                         <span class="text-base sm:text-lg font-bold text-[#1e293b]">4</span>
                         <span class="text-[11px] text-slate-400 mt-0.5">Lựa chọn / câu</span>
                     </div>
                     <div class="flex flex-col items-center justify-center">
-                        <i class="fa-regular fa-clock text-slate-400 text-sm mb-0.5"></i>
+                        <i class="fa-regular fa-clock text-slate-500 text-sm mb-1"></i>
                         <span class="text-[11px] text-slate-400">Làm bài theo tiến độ</span>
                     </div>
                 </div>
@@ -117,7 +115,8 @@
                     </div>
 
                     <!-- KHU VỰC NHẬP TỪ CÂU - ĐẾN CÂU (MẶC ĐỊNH KHÓA Ô ĐẾN CÂU) -->
-                    <div class="grid grid-cols-2 gap-3 mb-2">
+                    <!-- KHU VỰC NHẬP TỪ CÂU - ĐẾN CÂU (TỰ XẾP DỌC TRÊN ĐIỆN THOẠI, NGANG TRÊN MÁY TÍNH) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label for="inputFrom" class="text-xs font-medium text-slate-600">Từ câu:</label>
@@ -130,7 +129,7 @@
                                 min="1"
                                 max="265"
                                 oninput="onInputFromChange()"
-                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-base text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition"
                             />
                         </div>
                         <div>
@@ -147,7 +146,7 @@
                                 disabled
                                 oninput="clearRangeNotice()"
                                 onblur="checkRangeNotice()"
-                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-base text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                             />
                         </div>
                     </div>
@@ -196,19 +195,22 @@
 
             <!-- 2. MÀN HÌNH LÀM BÀI (MẶC ĐỊNH ẨN) -->
             <section id="quizScreen" class="hidden">
-                <header class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <div class="flex flex-wrap items-center justify-between gap-y-2 gap-x-4 mb-4">
+                    <!-- Nút Thoát bài thi: luôn ưu tiên bên trái / dòng trên -->
                     <button
-                        onclick="backToStartScreen()"
-                        title="Thoát ra màn hình bắt đầu để chỉnh lại"
-                        class="text-xs font-semibold px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                        type="button"
+                        onclick="confirmExitQuiz()"
+                        class="text-xs font-medium text-slate-500 hover:text-rose-600 flex items-center gap-1.5 transition shrink-0 py-1"
                     >
-                        <i class="fa-solid fa-right-from-bracket fa-flip-horizontal"></i>
-                        <span>Thoát</span>
+                        <i class="fa-solid fa-arrow-left text-[11px]"></i>
+                        <span>Thoát bài thi</span>
                     </button>
-                    <h2 class="text-base sm:text-lg font-bold text-slate-800" id="quizTitle">
-                        Trắc nghiệm Lịch sử Đảng
+
+                    <!-- Tiêu đề: nằm bên phải khi đủ chỗ, tự rớt xuống thành dòng dưới khi thiếu chỗ -->
+                    <h2 id="quizTitle" class="text-base sm:text-lg font-bold text-slate-800 leading-snug">
+                        Trắc nghiệm Lịch sử Đảng (2 câu)
                     </h2>
-                </header>
+                </div>
 
                 <!-- Thanh tiến trình & chỉ số đúng/sai -->
                 <div class="flex items-center gap-3 mb-6">
@@ -327,42 +329,56 @@
                     </div>
                 </div>
 
-                <!-- Tiêu đề danh sách xem lại câu hỏi -->
-                <div class="mb-6">
-                    <h3 class="text-sm sm:text-base font-bold text-slate-800 mb-3">Xem lại bài làm</h3>
-                    <div id="resQuestionList" class="space-y-3 max-h-80 overflow-y-auto pr-1"></div>
+                <!-- Tiêu đề và khung xem lại bài làm (Nền xám đậm hơn vừa phải) -->
+                <div class="mb-6 text-left">
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-blue-600"></i>
+                            <span>Xem lại bài làm</span>
+                        </h3>
+                        <span class="text-[11px] text-slate-500 font-medium">Cuộn để xem tiếp</span>
+                    </div>
+
+                    <!-- Khung chứa danh sách câu hỏi: nền xám slate-100 đậm vừa, viền rõ nét -->
+                    <div
+                        id="resQuestionList"
+                        class="p-3 bg-slate-100/90 border border-slate-300/80 rounded-2xl max-h-80 overflow-y-auto space-y-3"
+                    ></div>
                 </div>
 
-                <!-- Danh sách xem lại các câu đã làm -->
-
                 <!-- Các nút bấm điều hướng -->
-                <!-- Các nút bấm điều hướng (chữ to, dễ bấm) -->
-                <div class="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-slate-100">
-                    <button
-                        type="button"
-                        onclick="handleRetryAll()"
-                        class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-2 transition cursor-pointer shadow-xs"
-                    >
-                        <i class="fa-solid fa-rotate-right"></i>
-                        <span>Làm lại bài</span>
-                    </button>
+                <div
+                    class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2.5 sm:gap-3"
+                >
+                    <!-- Cụm 2 nút trên: bằng chiều cao và chống rớt dòng -->
+                    <div class="grid grid-cols-2 gap-2.5 sm:flex sm:items-center sm:gap-3">
+                        <button
+                            type="button"
+                            onclick="handleRetryAll()"
+                            class="w-full sm:w-auto h-11 px-3 sm:px-5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs whitespace-nowrap"
+                        >
+                            <i class="fa-solid fa-rotate-right text-xs"></i>
+                            <span>Làm lại bài</span>
+                        </button>
 
-                    <button
-                        type="button"
-                        id="btnRetryWrong"
-                        onclick="handleRetryWrong()"
-                        class="px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-sm font-semibold flex items-center gap-2 transition cursor-pointer"
-                    >
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span>Làm những câu sai</span>
-                    </button>
+                        <button
+                            type="button"
+                            id="btnRetryWrong"
+                            onclick="handleRetryWrong()"
+                            class="w-full sm:w-auto h-11 px-3 sm:px-5 bg-rose-50 hover:bg-rose-100 active:scale-[0.98] text-rose-600 border border-rose-200 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer whitespace-nowrap"
+                        >
+                            <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                            <span>Làm câu sai</span>
+                        </button>
+                    </div>
 
+                    <!-- Nút Về trang chủ (Nền đậm hơn, chiều cao h-11 chuẩn đồng bộ) -->
                     <button
                         type="button"
                         onclick="backToHomeFromResult()"
-                        class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold flex items-center gap-2 transition cursor-pointer"
+                        class="w-full sm:w-auto h-11 px-4 sm:px-5 bg-slate-200 hover:bg-slate-300 active:scale-[0.98] text-slate-800 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
                     >
-                        <i class="fa-solid fa-house"></i>
+                        <i class="fa-solid fa-house text-xs text-slate-600"></i>
                         <span>Về trang chủ</span>
                     </button>
                 </div>
