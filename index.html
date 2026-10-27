@@ -624,33 +624,6 @@
                 }
             }
 
-            function handleStartQuiz() {
-                const fromQ = parseInt(document.getElementById("inputFrom").value) || 1;
-                const toQ = parseInt(document.getElementById("inputTo").value) || fullQuestions.length;
-                const shuffleQ = document.getElementById("checkShuffleQ").checked;
-                const shuffleA = document.getElementById("checkShuffleA").checked;
-
-                const startScreen = document.getElementById("startScreen");
-                const quizScreen = document.getElementById("quizScreen");
-
-                // Màn hình bắt đầu lướt sang trái biến mất
-                startScreen.classList.add("slide-out-left");
-
-                setTimeout(() => {
-                    initQuiz(fromQ, toQ, shuffleQ);
-
-                    startScreen.classList.add("hidden");
-                    startScreen.classList.remove("slide-out-left");
-
-                    quizScreen.classList.remove("hidden");
-                    quizScreen.classList.add("slide-in-right");
-
-                    setTimeout(() => {
-                        quizScreen.classList.remove("slide-in-right");
-                    }, 250);
-                }, 180);
-            }
-
             function backToStartScreen() {
                 const startScreen = document.getElementById("startScreen");
                 const quizScreen = document.getElementById("quizScreen");
@@ -678,10 +651,17 @@
             }
 
             function handleStartQuiz() {
+                // 1. Kiểm tra tính hợp lệ của khoảng câu (nếu đang lỗi thì chặn lại)
+                if (typeof checkRangeNotice === "function" && !checkRangeNotice()) {
+                    return;
+                }
+
                 const fromQ = parseInt(document.getElementById("inputFrom").value) || 1;
                 const toQ = parseInt(document.getElementById("inputTo").value) || fullQuestions.length;
-                const shuffleQ = document.getElementById("checkShuffleQ").checked;
-                const shuffleA = document.getElementById("checkShuffleA").checked;
+
+                // Đọc trạng thái xáo trộn câu hỏi
+                const checkQEl = document.getElementById("checkShuffleQ");
+                const shuffleQ = checkQEl ? checkQEl.checked : false;
 
                 const startScreen = document.getElementById("startScreen");
                 const quizScreen = document.getElementById("quizScreen");
@@ -690,7 +670,7 @@
                 startScreen.classList.add("slide-out-left");
 
                 setTimeout(() => {
-                    initQuiz(fromQ, toQ, shuffleQ, shuffleA);
+                    initQuiz(fromQ, toQ, shuffleQ);
 
                     startScreen.classList.add("hidden");
                     startScreen.classList.remove("slide-out-left");
